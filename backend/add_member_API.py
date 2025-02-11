@@ -1,9 +1,9 @@
-from flask import Flask,request,jsonify
-import psycopg2
+from flask import Flask,request,jsonify         # Flask for API, request for fetching json data, jsonify for sending data in json
+import psycopg2                                 # postgreSQL dataAdapter for python
 
 app = Flask(__name__)
 
-db_config = {
+db_config = {                   # database connection variables
     "dbname":"projectH",
     "user":"postgres",
     "password":"postgres",
@@ -11,13 +11,13 @@ db_config = {
     "port":"5432",
 }
 
-def connect_db():
+def connect_db():           # databse connection function
     return psycopg2.connect(**db_config)
 
-@app.route('/addmember',methods=['POST'])
+@app.route('/addmember',methods=['POST'])           # this is the route from this below function will automatically called
 def add_member():
     try:
-        data = request.json
+        data = request.json         # fetching data from request
         accid = data.get('accid')
         name = data.get('name')
         gender = data.get('gender')
@@ -25,10 +25,10 @@ def add_member():
         height = data.get('height')
         weight = data.get('weight')
         if not accid or not name or not gender or not age or not age or not height or not weight:
-            return jsonify({"success":False,"message":"All data is required"}),400
+            return jsonify({"success":False,"message":"All data is required"}),400          # sending message in json formate
 
-        conn = connect_db()
-        cursor = conn.cursor()
+        conn = connect_db()         # connection variable
+        cursor = conn.cursor()      # cursor to execute command
         cursor.execute("insert into members_tbl(account_id,name,gender,age,height,weight) values(%s,%s,%s,%s,%s,%s)",(accid,name,gender,age,height,weight))
         conn.commit()
         cursor.close()
@@ -41,5 +41,5 @@ def add_member():
     except Exception as e:
         return jsonify({"success":False,"message":str(e)}),404
 
-if __name__ == '__main__':
+if __name__ == '__main__':          # if the file is called accidentally it will not execute
     app.run(debug=True)
