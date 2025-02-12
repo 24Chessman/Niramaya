@@ -1,7 +1,9 @@
 from flask import Flask,request,jsonify         # Flask for API, request for fetching json data, jsonify for sending data in json
+from flask_cors import CORS                     # enables CORS(Cross-origin resource sharing) for all routes
 import psycopg2                                 # postgreSQL dataAdapter for python
 
-app = Flask(__name__)
+app = Flask(__name__)           # Initialize Flask app  
+CORS(app)                       # Enable CORS to allow requests from different origins
 
 db_config = {                   # database connection variables
     "dbname":"projectH",
@@ -33,13 +35,13 @@ def add_member():
         conn.commit()
         cursor.close()
         conn.close()
-        return jsonify({"success":True,"message":"Member added successfully"}),201
+        return jsonify({"success":True,"message":"Member added successfully"}),200
     except psycopg2.errors.ForeignKeyViolation as e:
         return jsonify({"success":False,"message":str(e)}),400
     except psycopg2.errors.InvalidTextRepresentation as e:
         return jsonify({"success":False,"message":str(e)}),400
     except Exception as e:
-        return jsonify({"success":False,"message":str(e)}),404
+        return jsonify({"success":False,"message":str(e)}),500
 
 if __name__ == '__main__':          # if the file is called accidentally it will not execute
     app.run(debug=True)

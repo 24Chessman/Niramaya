@@ -1,7 +1,9 @@
 from flask import Flask,request,jsonify     # Flask for API, request for fetching json data, jsonify for sending data in json
+from flask_cors import CORS                 # enables CORS(Cross-origin resource sharing) for all routes
 import psycopg2                             # postgreSQL dataAdapter for python
 
-app = Flask(__name__)
+app = Flask(__name__)           # Initialize Flask app  
+CORS(app)                       # Enable CORS to allow requests from different origins
 
 db_config = {                   # database connection variables
     "dbname":"projectH",
@@ -28,11 +30,11 @@ def remove_user():
         cursor.execute("delete from members_tbl where name=%s and account_id=(select account_id from account_tbl where email=%s)",(name,email))
         conn.commit()
         if cursor.rowcount > 0:
-            return jsonify({"success":True,"message":"Member deleted successfully"}),201
+            return jsonify({"success":True,"message":"Member deleted successfully"}),200
         else:
             return jsonify({"success":False,"message":"Member not found"})
     except Exception as e:
-        return jsonify({"success":False,"message":str(e)}),404
+        return jsonify({"success":False,"message":str(e)}),500
 
 if __name__ == '__main__':      # if the file is called accidentally it will not execute
     app.run(debug=True)

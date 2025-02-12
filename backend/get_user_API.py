@@ -1,7 +1,9 @@
 from flask import Flask,request,jsonify         # Flask for API, request for fetching json data, jsonify for sending data in json
+from flask_cors import CORS                     # enables CORS(Cross-origin resource sharing) for all routes
 import psycopg2                                 # postgreSQL dataAdapter for python
 
-app = Flask(__name__)
+app = Flask(__name__)           # Initialize Flask app  
+CORS(app)                       # Enable CORS to allow requests from different origins
 
 db_config = {                   # database connection variables
     "dbname":"projectH",
@@ -33,11 +35,11 @@ def get_user():
             age = row[4]
             height = row[5]
             weight = row[6]
-            return jsonify({"success":True,"name":str(name),"gender":str(gender),"age":str(age),"height":str(height),"weight":str(weight)}),201
+            return jsonify({"success":True,"name":str(name),"gender":str(gender),"age":str(age),"height":str(height),"weight":str(weight)}),200
         else:
             return jsonify({"success":False,"message":"User does not exist"}),400
     except Exception as e:
-        return jsonify({"success":False,"message":str(e)}),404
+        return jsonify({"success":False,"message":str(e)}),500
 
 if __name__ == '__main__':          # if the file is called accidentally it will not execute
     app.run(debug=True)

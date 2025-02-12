@@ -1,9 +1,10 @@
 from flask import Flask,request,jsonify     # Flask for API, request for fetching json data, jsonify for sending data in json
+from flask_cors import CORS                 # enables CORS(Cross-origin resource sharing) for all routes
 import psycopg2                             # postgreSQL dataAdapter for python
 import bcrypt                               # convert password into hash
 
-
-app = Flask(__name__)
+app = Flask(__name__)           # Initialize Flask app  
+CORS(app)                       # Enable CORS to allow requests from different origins
 
 db_config = {                   # database connection variables
     "dbname": "projectH",
@@ -34,7 +35,7 @@ def register_user():
         conn.commit()
         cursor.close()
         conn.close()
-        return jsonify({"success":True,"message":"registration successfully"}),201
+        return jsonify({"success":True,"message":"registration successfully"}),200
     
     except psycopg2.IntegrityError:
         return jsonify({"success":False,"message":"Email already exist"}),400
