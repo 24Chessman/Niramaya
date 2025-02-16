@@ -2,7 +2,7 @@ from flask import Flask,request,jsonify         # Flask for API, request for fet
 from flask_cors import CORS                     # enables CORS(Cross-origin resource sharing) for all routes
 import psycopg2                                 # postgreSQL dataAdapter for python
 
-app = Flask(__name__)           # Initialize Flask app  
+app = Flask(__name__)           # Initialize Flask app and Creates a Flask application instance
 CORS(app)                       # Enable CORS to allow requests from different origins
 
 db_config = {                   # database connection variables
