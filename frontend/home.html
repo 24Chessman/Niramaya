@@ -86,8 +86,8 @@
         .chat-container {
             flex-grow: 1;
             overflow-y: auto;
-            max-height: calc(100vh - 200px); /* Dynamic chat height */
-            padding-bottom: 20px; /* Prevent overlap */
+            max-height: calc(100vh - 200px);
+            padding-bottom: 20px;
         }
         .centered-input {
             position: absolute;
@@ -101,7 +101,7 @@
             position: relative;
             width: 100%;
             max-width: 400px;
-            margin-top: 20px; /* Space after messages */
+            margin-top: 20px;
         }
     </style>
 </head>
@@ -112,26 +112,24 @@
             <i class="fas fa-heartbeat text-red-500"></i>
             <span>HealthAssist</span>
         </div>
+        <div class="space-x-4">
+            <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">Login</button>
+            <button class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">Signup</button>
+        </div>
     </header>
     
     <main class="flex flex-row w-full mt-24 relative">
-        <!-- Sidebar History -->
         <aside class="w-1/5 h-screen fixed top-16 left-0 bg-white border-r border-gray-300 overflow-y-auto p-4">
             <h2 class="text-xl font-semibold mb-4 text-center">Session History</h2>
             <div id="history" class="space-y-4"></div>
         </aside>
         
-        <!-- Main Chat Interface -->
         <div class="w-4/5 ml-auto h-screen flex flex-col items-center p-5">
             <div class="w-full max-w-md flex flex-col fade-in relative">
                 <h1 id="title-text" class="text-2xl font-semibold text-center mb-6">What can I help with?</h1>
                 
-                <!-- Chat Display Area -->
-                <div id="chat-container" class="chat-container w-full bg-white border border-gray-300 rounded-lg shadow-md p-4 overflow-y-auto">
-                    <!-- User input & responses will appear here -->
-                </div>
+                <div id="chat-container" class="chat-container w-full bg-white border border-gray-300 rounded-lg shadow-md p-4 overflow-y-auto"></div>
 
-                <!-- Input Field (Initially Centered, Moves Below Messages Later) -->
                 <div id="input-container" class="centered-input">
                     <div class="flex items-center bg-white border border-gray-300 rounded-full p-3 shadow-md">
                         <i class="fas fa-search text-gray-500 ml-2"></i>
@@ -176,25 +174,14 @@
                 let chatContainer = document.getElementById("chat-container");
                 let historyContainer = document.getElementById("history");
 
-                let userMessage = `
-                    <div class="bg-blue-100 p-3 rounded-lg shadow-md">
-                        <strong>User:</strong> ${user_input}
-                    </div>
-                `;
-                let botMessage = `
-                    <div class="bg-green-100 p-3 rounded-lg shadow-md">
-                        <strong>HealthAssist:</strong> Predicted Disease - <span class="text-red-500">${predictedDisease}</span>
-                    </div>
-                `;
+                let userMessage = `<div class="bg-blue-100 p-3 rounded-lg shadow-md"><strong>User:</strong> ${user_input}</div>`;
+                let botMessage = `<div class="bg-green-100 p-3 rounded-lg shadow-md"><strong>HealthAssist:</strong> Predicted Disease - <span class="text-red-500">${predictedDisease}</span></div>`;
 
-                // If first entry, move input field below chat container
                 if (isFirstEntry) {
                     document.getElementById('input-container').classList.remove("centered-input");
                     document.getElementById('input-container').classList.add("relative-input");
-                    document.getElementById('title-text').style.display = "none"; // Hide title after first entry
+                    document.getElementById('title-text').style.display = "none";
                     isFirstEntry = false;
-
-                    // Adjust chat container height to prevent overlap
                     document.getElementById("chat-container").style.maxHeight = "calc(100vh - 250px)";
                 }
 
@@ -211,7 +198,7 @@
                 </div>`;
 
                 document.getElementById('message-input').value = "";
-                chatContainer.scrollTop = chatContainer.scrollHeight; // Auto-scroll to latest message
+                chatContainer.scrollTop = chatContainer.scrollHeight;
             } catch (error) {
                 console.error("Error:", error);
             }
