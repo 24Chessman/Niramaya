@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Niramaya</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js" crossorigin="anonymous"></script>
+
+    <style>
+        /* Header Styles */
+        .header {
+            display: flex;
+            align-items: center;
+            padding: 0 40px;
+            background: #1c1c1c;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            height: 90px;
+        }
+
+        .logo img {
+            height: 80px;
+            width: auto;
+            margin-right: 15px;
+            margin-left: 40px;
+            margin-bottom: 5px;
+        }
+
+        .site-name {
+            font-size: 24px;
+            color: #e0e0e0;
+            font-weight: bold;
+        }
+
+        .nav {
+            display: flex;
+            gap: 20px;
+            margin-left: auto;
+            margin-right: 35px;
+        }
+
+        .nav a {
+            color: #e0e0e0;
+            text-decoration: none;
+            font-size: 16px;
+            padding: 8px 16px;
+            transition: background-color 0.3s;
+        }
+
+        .nav a:hover {
+            background-color: #333;
+            border-radius: 5px;
+        }
+
+        /* Body Styles */
+        body {
+            background-color: #1c1c1c;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* Greeting Container Styles */
+        .greeting-container {
+            text-align: center;
+            width: 100%;
+            margin-top: 350px;
+            position: relative;
+        }
+
+        .sub-header {
+            font-size: 22px;
+            font-weight: normal;
+            color: #cccccc;
+            margin-bottom: 20px;
+            margin: auto;
+        }
+
+        #welcome-message {
+            font-size: 26px;
+            color: #e0e0e0;
+            margin-bottom: 10px;
+        }
+
+        /* Input Container Styles */
+        .input-container {
+            position: relative;
+            top: auto;
+            left: auto;
+            transform: none;
+            display: flex;
+            align-items: center;
+            background-color: #333333;
+            padding: 15px;
+            border-radius: 30px;
+            width: 550px;
+            transition: all 0.5s ease;
+            margin-top: 30px;
+            margin-bottom: 10px;
+            transition: margin 0.3s ease-in-out;
+        }
+
+        .input-container input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #ffffff;
+            font-size: 16px;
+            padding: 12px;
+            height: 100%;
+        }
+
+        .model-select {
+            background: #444444;
+            border: 1px solid #666666;
+            color: #ffffff;
+            font-size: 16px;
+            cursor: pointer;
+            margin-left: 15px;
+            padding: 5px 10px;
+            border-radius: 20px;
+        }
+
+        .input-container button {
+            background: #555555;
+            color: #ffffff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            margin-left: 15px;
+        }
+
+        /* Chat Container Styles */
+        .chat-container {
+            width: 50%;
+            margin: 0 auto;
+            display: none;
+            flex-direction: column;
+            height: calc(75vh - 90px - 70px);
+            overflow-y: auto;
+            overflow-x: hidden;
+            border-radius: 10px;
+            padding: 15px;
+            padding-bottom: 90px;
+            background-color: #1c1c1c;
+            scrollbar-width: thin;
+            scrollbar-color: #888 transparent;
+            margin-top: 120px;
+        }
+
+        .chat-message {
+            padding: 12px;
+            border-radius: 12px;
+            margin: 8px 0;
+            max-width: 100%;
+            line-height: 1.6;
+            width: fit-content;
+        }
+
+        .user-message {
+            align-self: flex-end;
+            background-color: #333333;
+            margin-left: auto;
+            margin-right: 0;
+            text-align: right;
+        }
+
+        .bot-message {
+            align-self: flex-start;
+            background-color: transparent;
+            padding: 15px;
+            margin-right: auto;
+            margin-left: 0;
+            text-align: left;
+        }
+
+        .bot-message ul {
+            padding-left: 20px;
+            margin: 0;
+            word-wrap: break-word;
+        }
+
+        .bot-message li {
+            list-style-type: disc;
+            margin-bottom: 5px;
+        }
+
+        /* Chat Footer Styles */
+        .chat-footer {
+            position: fixed;
+            bottom: 5%;
+            width: 100%;
+            background: #1c1c1c;
+            padding: 15px 0;
+            display: none;
+            justify-content: center;
+            box-sizing: border-box;
+            height: 70px;
+            margin-top: 10px;
+        }
+
+        .chat-footer .input-container {
+            width: 600px;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            background-color: #333333;
+            border-radius: 30px;
+            height: 50px;
+        }
+
+        /* Custom Scrollbar */
+        .chat-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .chat-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .chat-container::-webkit-scrollbar-thumb {
+            background-color: #888;
+            border-radius: 4px;
+        }
+
+        .chat-container::-webkit-scrollbar-thumb:hover {
+            background-color: #555;
+        }
+
+        /* Modal Styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .modal-content {
+            background: linear-gradient(145deg, #2a2a2a, #1c1c1c);
+            padding: 40px;
+            border-radius: 15px;
+            width: 450px;
+            max-width: 90%;
+            position: relative;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.6);
+            border: 1px solid #444444;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 28px;
+            color: #e0e0e0;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .close-btn:hover {
+            color: #ffffff;
+        }
+
+        .modal-content h2 {
+            color: #e0e0e0;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #e0e0e0;
+            margin-bottom: 8px;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            background-color: #3a3a3a;
+            border: 1px solid #555555;
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .form-group input:focus {
+            border-color: #888888;
+            box-shadow: 0 0 8px rgba(136, 136, 136, 0.3);
+        }
+
+        .modal-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(90deg, #555555, #666666);
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.1s;
+        }
+
+        .modal-btn:hover {
+            background: linear-gradient(90deg, #666666, #777777);
+            transform: translateY(-2px);
+        }
+
+        .modal-btn:active {
+            transform: translateY(0);
+        }
+
+        .modal-link {
+            text-align: center;
+            margin-top: 20px;
+            color: #cccccc;
+            font-size: 14px;
+        }
+
+        .modal-link a {
+            color: #888888;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .modal-link a:hover {
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="logo">
+            <img src="N-logo.png" alt="Niramaya Logo">
+        </div>
+        <div class="site-name">Niramaya</div>
+        <div class="nav">
+            <a onclick="newChat()" href="question_input.html">New chat</a>
+            <a href="#">History</a>
+            <a id="profile-btn" href="#" style="display: none;" onclick="logout()">Profile</a>
+            <a id="login-btn" href="#" onclick="openLoginModal()">Login</a>
+            <a id="register-btn" href="#" onclick="openRegisterModal()">Register</a>
+        </div>
+    </div>
+    
+    <!-- Greeting Container -->
+    <div class="greeting-container" id="greeting-container">
+        <div id="welcome-message" style="display: none;"></div>
+        <div class="sub-header">How can I help you today?</div>
+    </div>
+    
+    <!-- Initial Input Container -->
+    <div class="input-container" id="input-container">
+        <input type="text" id="user-input" placeholder="What do you want to know?">
+        <select class="model-select" id="model-select">
+            <option value="BioGPT">BioGPT</option>
+            <option value="T5v1">T5v1</option>
+        </select>
+        <button onclick="sendMessage()">➤</button>
+    </div>
+    
+    <!-- Chat Container -->
+    <div class="chat-container" id="chat-container"></div>
+    
+    <!-- Chat Footer -->
+    <div class="chat-footer" id="chat-footer">
+        <div class="input-container">
+            <input type="text" id="user-input-footer" placeholder="Type your message...">
+            <select class="model-select" id="model-select-footer">
+                <option value="BioGPT">BioGPT</option>
+                <option value="T5v1">T5v1</option>
+            </select>
+            <button onclick="sendMessage()">➤</button>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeLoginModal()">×</span>
+            <h2>Login to Niramaya</h2>
+            <form id="login-form" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                </div>
+                <button type="submit" class="modal-btn">Login</button>
+            </form>
+            <p class="modal-link">Not a user? <a href="#" onclick="openRegisterModal(); closeLoginModal();">Register</a></p>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div id="register-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeRegisterModal()">×</span>
+            <h2>Register for Niramaya</h2>
+            <form id="register-form" onsubmit="handleRegister(event)">
+                <div class="form-group">
+                    <label for="familyname">Family Name</label>
+                    <input type="text" id="familyname" name="familyname" placeholder="Enter your family name" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-email">Email</label>
+                    <input type="email" id="register-email" name="email" placeholder="Enter your email" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-password">Password</label>
+                    <input type="password" id="register-password" name="password" placeholder="Enter your password" required>
+                </div>
+                <button type="submit" class="modal-btn">Register</button>
+            </form>
+            <p class="modal-link">Already have an account? <a href="#" onclick="openLoginModal(); closeRegisterModal();">Login</a></p>
+        </div>
+    </div>
+
+    <script>
+        // Global Variables
+        let isFirstMessage = true;
+        let isLoggedIn = false;
+
+        // Initialize on Page Load
+        window.onload = function() {
+            const storedEmail = localStorage.getItem("userEmail");
+            if (storedEmail) {
+                isLoggedIn = true;
+            }
+            updateNavButtons();
+            updateGreeting();
+        };
+
+        // Scroll to Bottom of Chat
+        function scrollToBottom() {
+            let chatContainer = document.getElementById("chat-container");
+            requestAnimationFrame(() => {
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            });
+        }
+
+        // Send Message to API
+        async function sendMessage() {
+            let inputField = isFirstMessage 
+                ? document.getElementById("user-input") 
+                : document.getElementById("user-input-footer");
+
+            let modelField = isFirstMessage 
+                ? document.getElementById("model-select") 
+                : document.getElementById("model-select-footer");
+
+            let userInput = inputField.value.trim();
+            let model = modelField.value;
+            let chatContainer = document.getElementById("chat-container");
+
+            if (userInput === "") {
+                alert("Please enter a message!");  
+                return;
+            }
+
+            if (isFirstMessage) {
+                document.getElementById("greeting-container").style.display = "none";
+                document.getElementById("input-container").style.display = "none"; 
+                document.getElementById("chat-container").style.display = "flex"; 
+                document.getElementById("chat-footer").style.display = "flex";
+                document.getElementById("chat-footer").style.marginBottom = "10px";
+                isFirstMessage = false;
+            }
+
+            let userMessage = document.createElement("div");
+            userMessage.classList.add("chat-message", "user-message");
+            userMessage.textContent = userInput;
+            chatContainer.appendChild(userMessage);
+
+            scrollToBottom();
+
+            inputField.value = "";
+
+            try {
+                let response = await fetch("http://127.0.0.1:5000/askbiogpt", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ question: userInput, model: model })
+                });
+
+                let data = await response.json();
+
+                let botMessage = document.createElement("div");
+                botMessage.classList.add("chat-message", "bot-message");
+
+                let answerList = document.createElement("ul");
+                answerList.style.paddingLeft = "20px";
+
+                let sentences = data.answer.split(". ");
+                sentences.forEach(sentence => {
+                    if (sentence.trim()) {
+                        let listItem = document.createElement("li");
+                        listItem.textContent = sentence.trim() + ".";
+                        answerList.appendChild(listItem);
+                    }
+                });
+
+                botMessage.appendChild(answerList);
+                chatContainer.appendChild(botMessage);
+
+                setTimeout(() => {
+                    scrollToBottom();
+                }, 200);
+
+            } catch (error) {
+                console.error("Error:", error);
+                let errorMessage = document.createElement("div");
+                errorMessage.classList.add("chat-message", "bot-message");
+                errorMessage.textContent = "❌ Unable to fetch response. Try again later!";
+                chatContainer.appendChild(errorMessage);
+
+                setTimeout(() => {
+                    scrollToBottom();
+                }, 200);
+            }
+        }
+
+        // Start a New Chat
+        function newChat() {
+            console.log("New Chat button clicked");
+            document.getElementById("chat-container").innerHTML = "";
+            document.getElementById("greeting-container").style.display = "block";
+            document.getElementById("input-container").style.display = "flex";
+            document.getElementById("chat-footer").style.display = "none";
+            isFirstMessage = true;
+            updateGreeting();
+        }
+
+        // Update Navigation Buttons Based on Login Status
+        function updateNavButtons() {
+            const loginBtn = document.getElementById("login-btn");
+            const registerBtn = document.getElementById("register-btn");
+            const profileBtn = document.getElementById("profile-btn");
+
+            if (isLoggedIn) {
+                loginBtn.style.display = "none";
+                registerBtn.style.display = "none";
+                profileBtn.style.display = "block";
+            } else {
+                loginBtn.style.display = "block";
+                registerBtn.style.display = "block";
+                profileBtn.style.display = "none";
+            }
+        }
+
+        // Update Greeting Message
+        function updateGreeting() {
+            const welcomeMessage = document.getElementById("welcome-message");
+            const familyName = localStorage.getItem("familyName");
+            if (familyName && familyName !== "undefined" && isLoggedIn) {
+                welcomeMessage.textContent = `Welcome, ${familyName}`;
+                welcomeMessage.style.display = "block";
+            } else {
+                welcomeMessage.style.display = "none";
+            }
+        }
+
+        // Open Login Modal
+        function openLoginModal() {
+            document.getElementById("login-modal").style.display = "flex";
+        }
+
+        // Close Login Modal
+        function closeLoginModal() {
+            document.getElementById("login-modal").style.display = "none";
+            document.getElementById("login-form").reset();
+        }
+
+        // Handle Login Form Submission
+        function handleLogin(event) {
+            event.preventDefault();
+
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+
+            fetch("http://127.0.0.1:5000/userlogin", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email: email, password: password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Login API Response:", data);
+                if (data.success) {
+                    isLoggedIn = true;
+                    localStorage.setItem("userEmail", data.email);
+                    localStorage.setItem("familyName", data.familyname || "User");
+                    updateNavButtons();
+                    closeLoginModal();
+                    alert("Login successful!");
+                    updateGreeting();
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("An error occurred during login. Please try again.");
+            });
+        }
+
+        // Open Register Modal
+        function openRegisterModal() {
+            document.getElementById("register-modal").style.display = "flex";
+        }
+
+        // Close Register Modal
+        function closeRegisterModal() {
+            document.getElementById("register-modal").style.display = "none";
+            document.getElementById("register-form").reset();
+        }
+
+        // Handle Registration Form Submission
+        function handleRegister(event) {
+            event.preventDefault();
+
+            const familyname = document.getElementById("familyname").value;
+            const email = document.getElementById("register-email").value;
+            const password = document.getElementById("register-password").value;
+
+            fetch("http://127.0.0.1:5000/register", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ fname: familyname, email: email, password: password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Register API Response:", data);
+                if (data.success) {
+                    alert("Registration successful! Please login.");
+                    closeRegisterModal();
+                    openLoginModal();
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("An error occurred during registration. Please try again.");
+            });
+        }
+
+        // Handle Logout
+        function logout() {
+            isLoggedIn = false;
+            localStorage.removeItem("userEmail");
+            localStorage.removeItem("familyName");
+            updateNavButtons();
+            updateGreeting();
+        }
+
+        // Close Modal on Outside Click
+        window.onclick = function(event) {
+            const loginModal = document.getElementById("login-modal");
+            const registerModal = document.getElementById("register-modal");
+            if (event.target === loginModal) {
+                closeLoginModal();
+            }
+            if (event.target === registerModal) {
+                closeRegisterModal();
+            }
+        };
+    </script>
+</body>
+</html>
