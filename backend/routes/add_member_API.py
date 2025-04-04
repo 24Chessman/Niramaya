@@ -32,7 +32,7 @@ def add_member():
 
         conn = connect_db()
         cursor = conn.cursor()
-        cursor.execute("insert into members_tbl(account_id, name, gender, age, height, weight) values(%s,%s,%s,%s,%s,%s)", (accid, name, gender, age, height, weight))
+        cursor.execute("insert into member_tbl(account_id, name, gender, age, height, weight) values(%s,%s,%s,%s,%s,%s)", (accid, name, gender, age, height, weight))
         conn.commit()
         cursor.close()
         conn.close()

@@ -21,22 +21,23 @@ def connect_db():
 def get_user():
     try:
         data = request.json
-        email = data.get('email')
-        name = data.get('name')
-        if not email or not name:
+        member_id = data.get('member_id')
+        account_id = data.get('account_id')
+        if not member_id or not account_id:
             return jsonify({"success": False, "message": "Email and name are required"}), 400
 
         conn = connect_db()
         cursor = conn.cursor()
-        cursor.execute("select * from members_tbl where name=%s and account_id=(select account_id from account_tbl where email=%s)", (name, email))
+        cursor.execute("select * from member_tbl where member_id=%s and account_id=%s", (member_id, account_id))
         row = cursor.fetchone()
 
         if row:
+            name = row[2]
             gender = row[3]
             age = row[4]
             height = row[5]
             weight = row[6]
-            return jsonify({"success": True, "name": str(name), "gender": str(gender), "age": str(age), "height": str(height), "weight": str(weight)}), 200
+            return jsonify({"success": True, "message": "Profile fetched successfully", "name": str(name), "gender": str(gender), "age": str(age), "height": str(height), "weight": str(weight)}), 200
         else:
             return jsonify({"success": False, "message": "User does not exist"}), 400
     except Exception as e:

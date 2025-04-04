@@ -32,7 +32,7 @@ def register_user():
         hashed_psw = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
         conn = connect_db()
         cursor = conn.cursor()
-        cursor.execute("insert into account_tbl(familyname, email, password_hash) values(%s,%s,%s)", (fname, email, hashed_psw.decode('utf-8')))
+        cursor.execute("insert into account_tbl(email, password_hash, family_name) values(%s,%s,%s)", (email, hashed_psw.decode('utf-8'),fname))
         conn.commit()
         cursor.close()
         conn.close()

@@ -250,7 +250,15 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 2000;
+            z-index: 2000 !important;
+            visibility: hidden; /* Initially hidden */
+            opacity: 0; /* Initially transparent */
+            transition: visibility 0.3s, opacity 0.3s; /* Smooth transition */
+        }
+
+        .modal[style*="display: flex"] {
+            visibility: visible;
+            opacity: 1;
         }
 
         .modal-content {
@@ -354,6 +362,72 @@
         .modal-link a:hover {
             color: #ffffff;
         }
+
+        .member-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 20px 0;
+        }
+
+        .member-card {
+            background: #3a3a3a;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .member-card:hover {
+            background: #4a4a4a;
+        }
+
+        .member-card.selected {
+            background: #555555;
+            border: 2px solid #777777;
+        }
+
+        .member-name {
+            color: #e0e0e0;
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        /* profile */
+        .profile-card {
+            background: #3a3a3a;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .profile-detail {
+            margin: 10px 0;
+            font-size: 16px;
+            color: #e0e0e0;
+        }
+
+        .profile-detail strong {
+            color: #cccccc;
+            margin-right: 10px;
+        }
+
+        .profile-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .profile-actions .modal-btn {
+            background: linear-gradient(90deg, #555555, #666666);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .profile-actions .modal-btn:hover {
+            background: linear-gradient(90deg, #666666, #777777);
+        }
     </style>
 </head>
 <body>
@@ -366,7 +440,7 @@
         <div class="nav">
             <a onclick="newChat()" href="question_input.html">New chat</a>
             <a href="#">History</a>
-            <a id="profile-btn" href="#" style="display: none;" onclick="logout()">Profile</a>
+            <a id="profile-btn" href="#" style="display: none;">Profile</a>
             <a id="login-btn" href="#" onclick="openLoginModal()">Login</a>
             <a id="register-btn" href="#" onclick="openRegisterModal()">Register</a>
         </div>
@@ -447,6 +521,38 @@
         </div>
     </div>
 
+    <!-- Member Selection Modal -->
+    <div id="member-selection-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeMemberSelectionModal()">×</span>
+            <h2>Select Your Profile</h2>
+            <div id="member-list" class="member-list">
+                <!-- Members will be dynamically added here -->
+            </div>
+            <p class="modal-link">Need to add a member? Contact support.</p>
+        </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div id="profile-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeProfileModal()">×</span>
+            <h2>Profile Details</h2>
+            <div class="profile-card">
+                <div class="profile-detail"><strong>Name:</strong> <span id="profile-name"></span></div>
+                <div class="profile-detail"><strong>Gender:</strong> <span id="profile-gender"></span></div>
+                <div class="profile-detail"><strong>Age:</strong> <span id="profile-age"></span></div>
+                <div class="profile-detail"><strong>Height:</strong> <span id="profile-height"></span></div>
+                <div class="profile-detail"><strong>Weight:</strong> <span id="profile-weight"></span></div>
+            </div>
+            <div class="profile-actions">
+                <button class="modal-btn" onclick="updateProfile()">Update Profile</button>
+                <button class="modal-btn" onclick="changeMember()">Change Member</button>
+                <button class="modal-btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Global Variables
         let isFirstMessage = true;
@@ -470,6 +576,10 @@
             });
         }
 
+        // function removelocal()
+        // {
+        //     localStorage.clear();
+        // }
         // Send Message to API
         async function sendMessage() {
             let inputField = isFirstMessage 
@@ -583,7 +693,12 @@
         function updateGreeting() {
             const welcomeMessage = document.getElementById("welcome-message");
             const familyName = localStorage.getItem("familyName");
-            if (familyName && familyName !== "undefined" && isLoggedIn) {
+            const selectedMemberName = localStorage.getItem("selectedMemberName");
+            
+            if (selectedMemberName && isLoggedIn) {
+                welcomeMessage.textContent = `Welcome, ${selectedMemberName}`;
+                welcomeMessage.style.display = "block";
+            } else if (familyName && familyName !== "undefined" && isLoggedIn) {
                 welcomeMessage.textContent = `Welcome, ${familyName}`;
                 welcomeMessage.style.display = "block";
             } else {
@@ -623,7 +738,13 @@
                     localStorage.setItem("familyName", data.familyname || "User");
                     updateNavButtons();
                     closeLoginModal();
-                    alert("Login successful!");
+                    
+                    // Assuming the API returns a members array with member_id, name, and account_id
+                    if (data.members && data.members.length > 0) {
+                        openMemberSelectionModal(data.members);
+                    } else {
+                        alert("No members found for this account!");
+                    }
                     updateGreeting();
                 } else {
                     alert(data.message);
@@ -678,23 +799,161 @@
 
         // Handle Logout
         function logout() {
+            console.log("Before clearing localStorage:", localStorage);
+            
             isLoggedIn = false;
             localStorage.removeItem("userEmail");
             localStorage.removeItem("familyName");
+            localStorage.removeItem("selectedMemberId");
+            localStorage.removeItem("selectedMemberName");
+            localStorage.removeItem("accountId");
+            localStorage.removeItem("loginTimestamp");
+            localStorage.removeItem("memberDataTimestamp");
+            
             updateNavButtons();
             updateGreeting();
+            closeProfileModal();
         }
 
         // Close Modal on Outside Click
         window.onclick = function(event) {
             const loginModal = document.getElementById("login-modal");
             const registerModal = document.getElementById("register-modal");
+            const memberModal = document.getElementById("member-selection-modal");
+            const profileModal = document.getElementById("profile-modal");
             if (event.target === loginModal) {
                 closeLoginModal();
             }
             if (event.target === registerModal) {
                 closeRegisterModal();
             }
+            if (event.target === memberModal) {
+                closeMemberSelectionModal();
+            }
+            if (event.target === profileModal) {
+                closeProfileModal();
+            }
+        };
+
+        // member display
+        function openMemberSelectionModal(members) {
+            const memberList = document.getElementById("member-list");
+            memberList.innerHTML = "";
+            
+            members.forEach(member => {
+                const memberCard = document.createElement("div");
+                memberCard.classList.add("member-card");
+                memberCard.innerHTML = `
+                    <div class="member-name">${member.name}</div>
+                `;
+                memberCard.onclick = () => selectMember(member.member_id, member.name, member.account_id);
+                memberList.appendChild(memberCard);
+            });
+            
+            document.getElementById("member-selection-modal").style.display = "flex";
+        }
+
+        function closeMemberSelectionModal() {
+            document.getElementById("member-selection-modal").style.display = "none";
+        }
+
+        function selectMember(memberId, memberName, accountId) {
+            // Store selected member info in localStorage
+            localStorage.setItem("selectedMemberId", memberId);
+            localStorage.setItem("selectedMemberName", memberName);
+            localStorage.setItem("accountId", accountId);
+            
+            // Update UI
+            const memberCards = document.getElementsByClassName("member-card");
+            for (let card of memberCards) {
+                card.classList.remove("selected");
+            }
+            event.currentTarget.classList.add("selected");
+            
+            // Close modal after selection
+            setTimeout(() => {
+                closeMemberSelectionModal();
+                updateGreeting(); // Update greeting with selected member name
+            }, 300);
+        }
+
+        function openProfileModal() {
+            // Fetch profile details from the backend
+            const memberId = localStorage.getItem("selectedMemberId");
+            const accountId = localStorage.getItem("accountId");
+
+            if (!memberId || !accountId) {
+                alert("Please select a member first!");
+                return;
+            }
+
+            fetch("http://127.0.0.1:5000/getuser", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ member_id: memberId, account_id: accountId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Populate profile details
+                    document.getElementById("profile-name").textContent = data.name || "N/A";
+                    document.getElementById("profile-gender").textContent = data.gender || "N/A";
+                    document.getElementById("profile-age").textContent = data.age || "N/A";
+                    document.getElementById("profile-height").textContent = data.height ? `${data.height} cm` : "N/A";
+                    document.getElementById("profile-weight").textContent = data.weight ? `${data.weight} kg` : "N/A";
+
+                    // Show the modal
+                    document.getElementById("profile-modal").style.display = "flex";
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error("Error fetching profile:", error);
+                alert("An error occurred while fetching profile details. Please try again.");
+            });
+        }
+
+        function closeProfileModal() {
+            document.getElementById("profile-modal").style.display = "none";
+        }
+
+        // Update Profile (Placeholder)
+        function updateProfile() {
+            alert("Update Profile functionality to be implemented!");
+            // You can add logic to open a form for updating profile details
+        }
+
+        function changeMember() {
+            closeProfileModal();
+            // Fetch members again and show the member selection modal
+            const email = localStorage.getItem("userEmail");
+            if (!email) {
+                alert("User email not found. Please log in again.");
+                return;
+            }
+
+            fetch("http://127.0.0.1:5000/userlogin", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email: email, password: "" }) // Password not needed for this call
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.members && data.members.length > 0) {
+                    openMemberSelectionModal(data.members);
+                } else {
+                    alert("No members found for this account!");
+                }
+            })
+            .catch(error => {
+                console.error("Error fetching members:", error);
+                alert("An error occurred while fetching members. Please try again.");
+            });
+        }
+
+        document.getElementById("profile-btn").onclick = function() {
+            openProfileModal();
         };
     </script>
 </body>
