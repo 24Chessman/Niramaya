@@ -553,6 +553,37 @@
         </div>
     </div>
 
+    <!-- Add Member Modal -->
+    <div id="add-member-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeAddMemberModal()">×</span>
+            <h2>Add New Member</h2>
+            <form id="add-member-form" onsubmit="handleAddMember(event)">
+                <div class="form-group">
+                    <label for="member-name">Name</label>
+                    <input type="text" id="member-name" name="name" placeholder="Enter member name" required>
+                </div>
+                <div class="form-group">
+                    <label for="member-gender">Gender</label>
+                    <input type="text" id="member-gender" name="gender" placeholder="Enter gender" required>
+                </div>
+                <div class="form-group">
+                    <label for="member-age">Age</label>
+                    <input type="number" id="member-age" name="age" placeholder="Enter age" required>
+                </div>
+                <div class="form-group">
+                    <label for="member-height">Height (cm)</label>
+                    <input type="number" id="member-height" name="height" placeholder="Enter height in cm" required>
+                </div>
+                <div class="form-group">
+                    <label for="member-weight">Weight (kg)</label>
+                    <input type="number" id="member-weight" name="weight" placeholder="Enter weight in kg" required>
+                </div>
+                <button type="submit" class="modal-btn">Add Member</button>
+            </form>
+        </div>
+    </div>
+
     <script>
         // Global Variables
         let isFirstMessage = true;
@@ -561,9 +592,18 @@
         // Initialize on Page Load
         window.onload = function() {
             const storedEmail = localStorage.getItem("userEmail");
-            if (storedEmail) {
+            const storedAccountId = localStorage.getItem("accountId");
+            const storedSelectedMemberId = localStorage.getItem("selectedMemberId");
+            const storedSelectedMemberName = localStorage.getItem("selectedMemberName");
+            const storedFamilyName = localStorage.getItem("familyName");
+
+            // Set isLoggedIn if any critical data is present
+            if (storedEmail && storedAccountId && storedSelectedMemberId && storedSelectedMemberName) {
                 isLoggedIn = true;
+            } else {
+                isLoggedIn = false;
             }
+
             updateNavButtons();
             updateGreeting();
         };
@@ -780,20 +820,29 @@
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ fname: familyname, email: email, password: password })
             })
-            .then(response => response.json())
+            .then(response => {
+                console.log("Raw Response:", response);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
             .then(data => {
                 console.log("Register API Response:", data);
                 if (data.success) {
-                    alert("Registration successful! Please login.");
+                    localStorage.setItem("accountId", data.account_id || "");
+                    localStorage.setItem("userEmail", email); // Store email
+                    localStorage.setItem("familyName", familyname); // Store family name
+                    alert("Registration successful! Please add a member.");
                     closeRegisterModal();
-                    openLoginModal();
+                    openAddMemberModal();
                 } else {
-                    alert(data.message);
+                    alert(data.message || "Registration failed due to an unknown error.");
                 }
             })
             .catch(error => {
-                console.error("Error:", error);
-                alert("An error occurred during registration. Please try again.");
+                console.error("Fetch Error:", error);
+                alert("An error occurred during registration. Check the console for details. Error: " + error.message);
             });
         }
 
@@ -839,17 +888,21 @@
         function openMemberSelectionModal(members) {
             const memberList = document.getElementById("member-list");
             memberList.innerHTML = "";
-            
+
             members.forEach(member => {
                 const memberCard = document.createElement("div");
                 memberCard.classList.add("member-card");
                 memberCard.innerHTML = `
                     <div class="member-name">${member.name}</div>
                 `;
+                // Check if this member is currently selected
+                if (member.member_id == localStorage.getItem("selectedMemberId")) {
+                    memberCard.classList.add("selected");
+                }
                 memberCard.onclick = () => selectMember(member.member_id, member.name, member.account_id);
                 memberList.appendChild(memberCard);
             });
-            
+
             document.getElementById("member-selection-modal").style.display = "flex";
         }
 
@@ -862,18 +915,19 @@
             localStorage.setItem("selectedMemberId", memberId);
             localStorage.setItem("selectedMemberName", memberName);
             localStorage.setItem("accountId", accountId);
-            
+
             // Update UI
             const memberCards = document.getElementsByClassName("member-card");
             for (let card of memberCards) {
                 card.classList.remove("selected");
             }
             event.currentTarget.classList.add("selected");
-            
-            // Close modal after selection
+
+            // Close modal and update greeting after a short delay
             setTimeout(() => {
                 closeMemberSelectionModal();
-                updateGreeting(); // Update greeting with selected member name
+                updateGreeting(); // Update greeting with the new selected member name
+                openProfileModal(); // Reopen profile modal with updated member details
             }, 300);
         }
 
@@ -925,25 +979,24 @@
         }
 
         function changeMember() {
-            closeProfileModal();
-            // Fetch members again and show the member selection modal
-            const email = localStorage.getItem("userEmail");
-            if (!email) {
-                alert("User email not found. Please log in again.");
+            closeProfileModal(); // Close the profile modal first
+            const accountId = localStorage.getItem("accountId");
+            if (!accountId) {
+                alert("Account ID not found. Please log in or register again.");
                 return;
             }
 
-            fetch("http://127.0.0.1:5000/userlogin", {
+            fetch("http://127.0.0.1:5000/getmembers", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email: email, password: "" }) // Password not needed for this call
+                body: JSON.stringify({ account_id: accountId })
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success && data.members && data.members.length > 0) {
-                    openMemberSelectionModal(data.members);
+                    openMemberSelectionModal(data.members); // Open modal with fetched members
                 } else {
-                    alert("No members found for this account!");
+                    alert(data.message || "No members found for this account!");
                 }
             })
             .catch(error => {
@@ -955,6 +1008,177 @@
         document.getElementById("profile-btn").onclick = function() {
             openProfileModal();
         };
+
+
+        // add member
+        function closeAddMemberModal() {
+            document.getElementById("add-member-modal").style.display = "none";
+            document.getElementById("add-member-form").reset();
+        }
+
+        async function handleAddMember(event) {
+            event.preventDefault();
+
+            const name = document.getElementById("member-name").value;
+            const gender = document.getElementById("member-gender").value;
+            const age = document.getElementById("member-age").value;
+            const height = document.getElementById("member-height").value;
+            const weight = document.getElementById("member-weight").value;
+            const accountId = localStorage.getItem("accountId");
+
+            if (!accountId) {
+                alert("Account ID not found. Please register again.");
+                return;
+            }
+
+            try {
+                const response = await fetch("http://127.0.0.1:5000/addmember", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        name: name,
+                        gender: gender,
+                        age: age,
+                        height: height,
+                        weight: weight,
+                        accid: accountId
+                    })
+                });
+
+                const data = await response.json();
+                console.log("Add Member API Response:", data);
+
+                if (data.success) {
+                    alert("Member added successfully!");
+                    closeAddMemberModal();
+                    isLoggedIn = true;
+                    localStorage.setItem("selectedMemberId", data.member_id); // Assuming the API returns member_id
+                    localStorage.setItem("selectedMemberName", name);
+                    localStorage.setItem("userEmail", localStorage.getItem("userEmail") || ""); // Ensure email is set
+                    localStorage.setItem("familyName", localStorage.getItem("familyName") || ""); // Ensure family name is set
+                    updateNavButtons();
+                    updateGreeting();
+                } else {
+                    alert(data.message);
+                }
+            } catch (error) {
+                console.error("Error adding member:", error);
+                alert("An error occurred while adding the member. Please try again.");
+            }
+        }
+
+        function openAddMemberModal() {
+            document.getElementById("add-member-modal").style.display = "flex";
+        }
+
+        // Send Message to API
+        async function sendMessage() {
+            let inputField = isFirstMessage 
+                ? document.getElementById("user-input") 
+                : document.getElementById("user-input-footer");
+
+            let modelField = isFirstMessage 
+                ? document.getElementById("model-select") 
+                : document.getElementById("model-select-footer");
+
+            let userInput = inputField.value.trim();
+            let model = modelField.value;
+            let chatContainer = document.getElementById("chat-container");
+
+            if (userInput === "") {
+                alert("Please enter a message!");  
+                return;
+            }
+
+            if (isFirstMessage) {
+                document.getElementById("greeting-container").style.display = "none";
+                document.getElementById("input-container").style.display = "none"; 
+                document.getElementById("chat-container").style.display = "flex"; 
+                document.getElementById("chat-footer").style.display = "flex";
+                document.getElementById("chat-footer").style.marginBottom = "10px";
+                isFirstMessage = false;
+            }
+
+            let userMessage = document.createElement("div");
+            userMessage.classList.add("chat-message", "user-message");
+            userMessage.textContent = userInput;
+            chatContainer.appendChild(userMessage);
+
+            scrollToBottom();
+
+            inputField.value = "";
+
+            try {
+                let response = await fetch("http://127.0.0.1:5000/askbiogpt", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ question: userInput, model: model })
+                });
+
+                let data = await response.json();
+
+                let botMessage = document.createElement("div");
+                botMessage.classList.add("chat-message", "bot-message");
+
+                let answerList = document.createElement("ul");
+                answerList.style.paddingLeft = "20px";
+
+                let sentences = data.answer.split(". ");
+                sentences.forEach(sentence => {
+                    if (sentence.trim()) {
+                        let listItem = document.createElement("li");
+                        listItem.textContent = sentence.trim() + ".";
+                        answerList.appendChild(listItem);
+                    }
+                });
+
+                botMessage.appendChild(answerList);
+                chatContainer.appendChild(botMessage);
+
+                // Save chat history to database
+                const accountId = localStorage.getItem("accountId");
+                const memberId = localStorage.getItem("selectedMemberId");
+                if (accountId && memberId && isLoggedIn) {
+                    fetch("http://127.0.0.1:5000/savechat", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            account_id: accountId,
+                            member_id: memberId,
+                            user_input: userInput,
+                            bot_response: data.answer
+                        })
+                    })
+                    .then(saveResponse => saveResponse.json())
+                    .then(saveData => {
+                        console.log("Chat History Saved:", saveData);
+                        if (!saveData.success) {
+                            console.error("Failed to save chat history:", saveData.message);
+                        }
+                    })
+                    .catch(saveError => {
+                        console.error("Error saving chat history:", saveError);
+                    });
+                } else {
+                    console.warn("Cannot save chat history: Missing accountId, memberId, or not logged in");
+                }
+
+                setTimeout(() => {
+                    scrollToBottom();
+                }, 200);
+
+            } catch (error) {
+                console.error("Error:", error);
+                let errorMessage = document.createElement("div");
+                errorMessage.classList.add("chat-message", "bot-message");
+                errorMessage.textContent = "❌ Unable to fetch response. Try again later!";
+                chatContainer.appendChild(errorMessage);
+
+                setTimeout(() => {
+                    scrollToBottom();
+                }, 200);
+            }
+        }
     </script>
 </body>
 </html>

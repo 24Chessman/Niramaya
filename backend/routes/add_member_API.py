@@ -21,25 +21,33 @@ def connect_db():
 def add_member():
     try:
         data = request.json
-        accid = data.get('accid')
         name = data.get('name')
         gender = data.get('gender')
         age = data.get('age')
         height = data.get('height')
         weight = data.get('weight')
-        if not accid or not name or not gender or not age or not height or not weight:
-            return jsonify({"success": False, "message": "All data is required"}), 400
+        account_id = data.get('accid')
+
+        if not all([name, gender, age, height, weight, account_id]):
+            return jsonify({"success": False, "message": "All fields are required"}), 400
 
         conn = connect_db()
         cursor = conn.cursor()
-        cursor.execute("insert into member_tbl(account_id, name, gender, age, height, weight) values(%s,%s,%s,%s,%s,%s)", (accid, name, gender, age, height, weight))
+        cursor.execute(
+            "INSERT INTO member_tbl (account_id, name, gender, age, height, weight) VALUES (%s, %s, %s, %s, %s, %s) RETURNING member_id",
+            (account_id, name, gender, age, height, weight)
+        )
+        new_member_id = cursor.fetchone()[0]
         conn.commit()
-        cursor.close()
-        conn.close()
-        return jsonify({"success": True, "message": "Member added successfully"}), 200
-    except psycopg2.errors.ForeignKeyViolation as e:
-        return jsonify({"success": False, "message": str(e)}), 400
-    except psycopg2.errors.InvalidTextRepresentation as e:
-        return jsonify({"success": False, "message": str(e)}), 400
+
+        return jsonify({
+            "success": True,
+            "member_id": new_member_id,
+            "message": "Member added successfully"
+        }), 201
+
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()

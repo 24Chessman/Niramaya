@@ -20,6 +20,8 @@ def connect_db():
 
 @register_bp.route('/register', methods=['POST'])
 def register_user():
+    conn = None
+    cursor = None
     try:
         data = request.json
         fname = data.get('fname')
@@ -32,13 +34,20 @@ def register_user():
         hashed_psw = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
         conn = connect_db()
         cursor = conn.cursor()
-        cursor.execute("insert into account_tbl(email, password_hash, family_name) values(%s,%s,%s)", (email, hashed_psw.decode('utf-8'),fname))
+        cursor.execute(
+            "INSERT INTO account_tbl (email, password_hash, family_name) VALUES (%s, %s, %s) RETURNING account_id",
+            (email, hashed_psw.decode('utf-8'), fname)
+        )
+        account_id = cursor.fetchone()[0]
         conn.commit()
-        cursor.close()
-        conn.close()
-        return jsonify({"success": True, "message": "Registration successful"}), 200
+        return jsonify({"success": True, "account_id": account_id, "message": "Registration successful"}), 201
 
     except psycopg2.IntegrityError:
         return jsonify({"success": False, "message": "Email already exists"}), 400
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
