@@ -275,6 +275,7 @@
             justify-content: center;
             align-items: center;
         }
+
         .close-btn {
             position: absolute;
             top: 15px;
@@ -398,12 +399,12 @@
         }
 
         #history-modal .modal-content {
-            width: 450px; /* Match other modals (login, register, profile, etc.) */
-            max-height: 80vh;
-            overflow-y: auto;
+            width: 600px;
+            max-height: 80vh; /* Ensure the modal content respects the viewport height */
+            overflow-y: auto; /* Enable vertical scrolling for the entire modal content */
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-start; /* Align content from the top */
             align-items: center;
             padding: 40px;
             background: linear-gradient(145deg, #2a2a2a, #1c1c1c);
@@ -561,15 +562,18 @@
 
         /* History modal */
         .history-list {
-            width: 100%; /* Ensure the list takes the full width of the modal-content (450px) */
+            width: 100%;
             padding: 20px;
-            box-sizing: border-box; /* Include padding in width calculation */
+            box-sizing: border-box;
+            margin-top: 20px;
+            max-height: calc(100% - 100px); /* Subtract padding and header height */
+            overflow-y: auto; /* Enable scrolling within the list */
         }
 
         .history-card {
             background: #2a2a2a;
             padding: 15px;
-            margin-bottom: 15px;
+            margin-bottom: 15px; /* Consistent spacing between cards */
             border-radius: 10px;
             cursor: pointer;
             transition: background 0.3s;
@@ -585,15 +589,22 @@
             font-size: 18px;
             font-weight: 500;
             margin: 0;
-            word-break: break-word;
+            word-break: break-word; /* Prevent overflow */
         }
 
+        .history-response {
+            color: #cccccc;
+            font-size: 14px;
+            margin: 5px 0;
+            word-break: break-word; /* Prevent overflow */
+            max-width: 100%; /* Ensure it fits within the card */
+            overflow-wrap: break-word; /* Handle long words */
+        }
         .history-timestamp {
             color: #cccccc;
             font-size: 14px;
             margin: 0;
         }
-
         .history-actions {
             display: flex;
             justify-content: flex-end;
@@ -609,6 +620,37 @@
 
         .history-actions i:hover {
             color: #ffffff;
+        }
+
+        /* Gemini */
+        .gemini-response {
+            color: #cccccc;
+            font-size: 14px;
+            line-height: 1.6;
+            word-break: break-word;
+            max-width: 100%;
+        }
+        .gemini-response p {
+            margin: 5px 0;
+        }
+        .gemini-response ul {
+            padding-left: 20px;
+            margin: 5px 0;
+        }
+        .gemini-response li {
+            margin-bottom: 5px;
+        }
+        .gemini-response strong {
+            font-weight: 600;
+            color: #e0e0e0;
+        }
+
+        .logo {
+            cursor: pointer;
+        }
+
+        .site-name {
+            cursor: pointer;
         }
     </style>
 </head>
@@ -639,7 +681,7 @@
         <input type="text" id="user-input" placeholder="What do you want to know?">
         <select class="model-select" id="model-select">
             <option value="BioGPT">BioGPT</option>
-            <option value="T5v1">T5v1</option>
+            <option value="Gemini">Gemini</option>
         </select>
         <button onclick="sendMessage()">➤</button>
     </div>
@@ -653,7 +695,7 @@
             <input type="text" id="user-input-footer" placeholder="Type your message...">
             <select class="model-select" id="model-select-footer">
                 <option value="BioGPT">BioGPT</option>
-                <option value="T5v1">T5v1</option>
+                <option value="Gemini">Gemini</option>
             </select>
             <button onclick="sendMessage()">➤</button>
         </div>
@@ -781,6 +823,15 @@
         let isLoggedIn = false;
         let guestQuestionCount = 0;
 
+        document.querySelector(".logo").onclick = function(e) {
+            e.preventDefault(); // Prevent any default behavior if applicable
+            window.location.href = "home.html";
+        };
+
+        document.querySelector(".site-name").onclick = function(e) {
+            e.preventDefault(); // Prevent any default behavior if applicable
+            window.location.href = "home.html";
+        };
         // Initialize on Page Load
         window.onload = function() {
             const storedEmail = localStorage.getItem("userEmail");
@@ -814,6 +865,7 @@
         //     localStorage.clear();
         // }
         // Send Message to API
+
         async function sendMessage() {
             let inputField = isFirstMessage 
                 ? document.getElementById("user-input") 
@@ -829,6 +881,12 @@
 
             if (userInput === "") {
                 alert("Please enter a message!");  
+                return;
+            }
+
+            if (!isLoggedIn && guestQuestionCount >= 5) {
+                alert("You have reached the limit of 5 questions as a guest. Please log in or register to continue.");
+                openLoginModal();
                 return;
             }
 
@@ -851,31 +909,104 @@
             inputField.value = "";
 
             try {
-                let response = await fetch("http://127.0.0.1:5000/askbiogpt", {
+                let endpoint = model === "BioGPT" ? "http://127.0.0.1:5000/askbiogpt" : "http://127.0.0.1:5000/askgemini";
+                let response = await fetch(endpoint, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ question: userInput, model: model })
                 });
 
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
                 let data = await response.json();
+                console.log("API Response:", data); // Debug log
 
                 let botMessage = document.createElement("div");
                 botMessage.classList.add("chat-message", "bot-message");
 
-                let answerList = document.createElement("ul");
-                answerList.style.paddingLeft = "20px";
+                // Conditional rendering based on model
+                if (model === "BioGPT") {
+                    let answerList = document.createElement("ul");
+                    answerList.style.paddingLeft = "20px";
+                    let sentences = data.answer.split(". ");
+                    sentences.forEach(sentence => {
+                        if (sentence.trim()) {
+                            let listItem = document.createElement("li");
+                            listItem.textContent = sentence.trim() + ".";
+                            answerList.appendChild(listItem);
+                        }
+                    });
+                    botMessage.appendChild(answerList);
+                } else if (model === "Gemini") {
+                    let responseDiv = document.createElement("div");
+                    responseDiv.className = "gemini-response";
 
-                let sentences = data.answer.split(". ");
-                sentences.forEach(sentence => {
-                    if (sentence.trim()) {
-                        let listItem = document.createElement("li");
-                        listItem.textContent = sentence.trim() + ".";
-                        answerList.appendChild(listItem);
-                    }
-                });
+                    let lines = data.answer.split("\n").map(line => line.trim()).filter(line => line.length > 0);
+                    let currentList = null;
 
-                botMessage.appendChild(answerList);
+                    lines.forEach(line => {
+                        if (line.startsWith("*")) {
+                            if (!currentList) {
+                                currentList = document.createElement("ul");
+                                currentList.style.paddingLeft = "20px";
+                                responseDiv.appendChild(currentList);
+                            }
+                            let listItem = document.createElement("li");
+                            let content = line.replace(/^[*]\s*/, "").trim();
+                            content = content.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+                            listItem.innerHTML = content;
+                            currentList.appendChild(listItem);
+                        } else {
+                            if (currentList) {
+                                currentList = null;
+                            }
+                            let paragraph = document.createElement("p");
+                            let content = line.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+                            paragraph.innerHTML = content;
+                            responseDiv.appendChild(paragraph);
+                        }
+                    });
+
+                    botMessage.appendChild(responseDiv);
+                }
+
                 chatContainer.appendChild(botMessage);
+
+                // Increment guest question count if not logged in
+                if (!isLoggedIn) {
+                    guestQuestionCount++;
+                    localStorage.setItem("guestQuestionCount", guestQuestionCount);
+                }
+
+                // Save chat history only if logged in
+                if (isLoggedIn) {
+                    const accountId = localStorage.getItem("accountId");
+                    const memberId = localStorage.getItem("selectedMemberId"); // Fixed typo: getElementById to getItem
+                    if (accountId && memberId) {
+                        fetch("http://127.0.0.1:5000/savechat", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                account_id: accountId,
+                                member_id: memberId,
+                                user_input: userInput,
+                                bot_response: data.answer
+                            })
+                        })
+                        .then(saveResponse => saveResponse.json())
+                        .then(saveData => {
+                            console.log("Chat History Saved:", saveData);
+                            if (!saveData.success) {
+                                console.error("Failed to save chat history:", saveData.message);
+                            }
+                        })
+                        .catch(saveError => {
+                            console.error("Error saving chat history:", saveError);
+                        });
+                    }
+                }
 
                 setTimeout(() => {
                     scrollToBottom();
@@ -885,7 +1016,8 @@
                 console.error("Error:", error);
                 let errorMessage = document.createElement("div");
                 errorMessage.classList.add("chat-message", "bot-message");
-                errorMessage.textContent = "❌ Unable to fetch response. Try again later!";
+                errorMessage.style.color = "red"; // Ensure error stands out
+                errorMessage.textContent = `❌ ${error.message || "Unable to fetch response. Try again later!"}`;
                 chatContainer.appendChild(errorMessage);
 
                 setTimeout(() => {
@@ -1303,126 +1435,6 @@
                 document.getElementById("chat-footer").style.display = "none";
             } else {
                 console.error("Add Member Modal element not found!");
-            }
-        }
-        // Send Message to API
-        async function sendMessage() {
-            let inputField = isFirstMessage 
-                ? document.getElementById("user-input") 
-                : document.getElementById("user-input-footer");
-
-            let modelField = isFirstMessage 
-                ? document.getElementById("model-select") 
-                : document.getElementById("model-select-footer");
-
-            let userInput = inputField.value.trim();
-            let model = modelField.value;
-            let chatContainer = document.getElementById("chat-container");
-
-            if (userInput === "") {
-                alert("Please enter a message!");  
-                return;
-            }
-
-            if (!isLoggedIn && guestQuestionCount >= 5) {
-                alert("You have reached the limit of 5 questions as a guest. Please log in or register to continue.");
-                openLoginModal();
-                return;
-            }
-
-            if (isFirstMessage) {
-                document.getElementById("greeting-container").style.display = "none";
-                document.getElementById("input-container").style.display = "none"; 
-                document.getElementById("chat-container").style.display = "flex"; 
-                document.getElementById("chat-footer").style.display = "flex";
-                document.getElementById("chat-footer").style.marginBottom = "10px";
-                isFirstMessage = false;
-            }
-
-            let userMessage = document.createElement("div");
-            userMessage.classList.add("chat-message", "user-message");
-            userMessage.textContent = userInput;
-            chatContainer.appendChild(userMessage);
-
-            scrollToBottom();
-
-            inputField.value = "";
-
-            try {
-                let response = await fetch("http://127.0.0.1:5000/askbiogpt", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ question: userInput, model: model })
-                });
-
-                let data = await response.json();
-
-                let botMessage = document.createElement("div");
-                botMessage.classList.add("chat-message", "bot-message");
-
-                let answerList = document.createElement("ul");
-                answerList.style.paddingLeft = "20px";
-
-                let sentences = data.answer.split(". ");
-                sentences.forEach(sentence => {
-                    if (sentence.trim()) {
-                        let listItem = document.createElement("li");
-                        listItem.textContent = sentence.trim() + ".";
-                        answerList.appendChild(listItem);
-                    }
-                });
-
-                botMessage.appendChild(answerList);
-                chatContainer.appendChild(botMessage);
-
-                // Increment guest question count if not logged in
-                if (!isLoggedIn) {
-                    guestQuestionCount++;
-                    localStorage.setItem("guestQuestionCount", guestQuestionCount);
-                }
-
-                // Save chat history only if logged in
-                if (isLoggedIn) {
-                    const accountId = localStorage.getItem("accountId");
-                    const memberId = localStorage.getItem("selectedMemberId");
-                    if (accountId && memberId) {
-                        fetch("http://127.0.0.1:5000/savechat", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({
-                                account_id: accountId,
-                                member_id: memberId,
-                                user_input: userInput,
-                                bot_response: data.answer
-                            })
-                        })
-                        .then(saveResponse => saveResponse.json())
-                        .then(saveData => {
-                            console.log("Chat History Saved:", saveData);
-                            if (!saveData.success) {
-                                console.error("Failed to save chat history:", saveData.message);
-                            }
-                        })
-                        .catch(saveError => {
-                            console.error("Error saving chat history:", saveError);
-                        });
-                    }
-                }
-
-                setTimeout(() => {
-                    scrollToBottom();
-                }, 200);
-
-            } catch (error) {
-                console.error("Error:", error);
-                let errorMessage = document.createElement("div");
-                errorMessage.classList.add("chat-message", "bot-message");
-                errorMessage.textContent = "❌ Unable to fetch response. Try again later!";
-                chatContainer.appendChild(errorMessage);
-
-                setTimeout(() => {
-                    scrollToBottom();
-                }, 200);
             }
         }
 
