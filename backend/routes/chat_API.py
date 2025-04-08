@@ -73,5 +73,95 @@ def save_chat():
         if conn:
             conn.close()
 
-# Register the Blueprint in your main app file (e.g., app.py)
-# app.register_blueprint(chat_bp)
+
+@chat_bp.route('/getchat', methods=['POST'])
+def get_chat():
+    conn = None
+    cursor = None
+    try:
+        data = request.json
+        account_id = data.get('account_id')
+        member_id = data.get('member_id')
+        if not account_id or not member_id:
+            return jsonify({"success": False, "message": "Account ID and Member ID are required"}), 400
+
+        account_id = int(account_id)
+        member_id = int(member_id)
+        conn = connect_db()
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT history_id, user_input, bot_response, timestamp 
+            FROM chat_history_tbl 
+            WHERE account_id = %s AND member_id = %s 
+            ORDER BY timestamp DESC
+        """, (account_id, member_id))
+        history = cursor.fetchall()
+
+        history_list = [
+            {"history_id": h[0], "question": h[1], "response": h[2], "timestamp": h[3].isoformat()}
+            for h in history
+        ]
+
+        cursor.close()
+        conn.close()
+
+        return jsonify({
+            "success": True,
+            "message": "Chat history retrieved successfully",
+            "history": history_list
+        }), 200
+
+    except psycopg2.Error as e:
+        return jsonify({"success": False, "message": f"Database error: {str(e)}"}), 500
+    except Exception as e:
+        return jsonify({"success": False, "message": f"Server error: {str(e)}"}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+
+@chat_bp.route('/deletechat', methods=['POST'])
+def delete_chat():
+    conn = None
+    cursor = None
+    try:
+        data = request.json
+        account_id = data.get('account_id')
+        member_id = data.get('member_id')
+        history_id = data.get('history_id')
+        if not account_id or not member_id or not history_id:
+            return jsonify({"success": False, "message": "Account ID, Member ID, and History ID are required"}), 400
+
+        account_id = int(account_id)
+        member_id = int(member_id)
+        history_id = int(history_id)
+        conn = connect_db()
+        cursor = conn.cursor()
+        cursor.execute("""
+            DELETE FROM chat_history_tbl 
+            WHERE account_id = %s AND member_id = %s AND history_id = %s
+        """, (account_id, member_id, history_id))
+        conn.commit()
+
+        if cursor.rowcount == 0:
+            return jsonify({"success": False, "message": "No matching history found"}), 404
+
+        cursor.close()
+        conn.close()
+
+        return jsonify({
+            "success": True,
+            "message": "Chat history deleted successfully"
+        }), 200
+
+    except psycopg2.Error as e:
+        return jsonify({"success": False, "message": f"Database error: {str(e)}"}), 500
+    except Exception as e:
+        return jsonify({"success": False, "message": f"Server error: {str(e)}"}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()

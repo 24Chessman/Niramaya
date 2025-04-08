@@ -17,7 +17,6 @@
             <a href="#" aria-label="About Niramaya">About Niramaya</a>
             <a href="#" aria-label="Our Models">Our Models</a>
             <a href="#" aria-label="Wellness Tips">Wellness Tips</a>
-            <a href="#" id="login-link" aria-label="Login">Login</a>
         </div>
     </div>
     
@@ -32,7 +31,8 @@
 
         <div class="container">
             <div class="research-section">
-                <h2>Latest Research Papers</h2>
+                <h2>Latest Health Research</h2>
+                <p class="section-subtitle">Stay updated with cutting-edge health studies</p>
                 <div class="research-grid" id="research-papers"></div>
             </div>
         </div>
@@ -42,65 +42,7 @@
         <p>Follow us on <a href="https://www.facebook.com">Facebook</a> and <a href="https://www.youtube.com">YouTube</a></p>
         <p>2025 Niramaya. All rights reserved.</p>
     </div>
-
-    <!-- Login Modal -->
-    <div id="login-modal" class="modal" role="dialog" aria-labelledby="login-title" aria-hidden="true">
-        <div class="modal-content">
-            <span class="close" id="close-login" aria-label="Close login modal">×</span>
-            <h2 id="login-title">Login to Niramaya</h2>
-            <form id="login-form">
-                <div class="form-group">
-                    <label for="login-email">Email</label>
-                    <input type="email" id="login-email" name="email" required>
-                </div>
-                <div class="form-group">
-                    <label for="login-password">Password</label>
-                    <input type="password" id="login-password" name="password" required>
-                </div>
-                <button type="submit" class="modal-button">Login</button>
-            </form>
-            <div class="switch-form">
-                <p>New here? <a href="#" id="switch-to-register">Register now</a></p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Registration Modal -->
-    <div id="register-modal" class="modal" role="dialog" aria-labelledby="register-title" aria-hidden="true">
-        <div class="modal-content">
-            <span class="close" id="close-register" aria-label="Close register modal">×</span>
-            <h2 id="register-title">Register with Niramaya</h2>
-            <div class="social-login">
-                <button class="social-button" id="google-register">
-                    <i class="fab fa-google"></i> Register with Google
-                </button>
-            </div>
-            <div class="or-divider">OR</div>
-            <form id="register-form">
-                <div class="form-group">
-                    <label for="register-name">Full Name</label>
-                    <input type="text" id="register-name" name="name" required>
-                </div>
-                <div class="form-group">
-                    <label for="register-email">Email</label>
-                    <input type="email" id="register-email" name="email" required>
-                </div>
-                <div class="form-group">
-                    <label for="register-password">Password</label>
-                    <input type="password" id="register-password" name="password" required>
-                </div>
-                <div class="form-group">
-                    <label for="register-confirm-password">Confirm Password</label>
-                    <input type="password" id="register-confirm-password" name="confirm-password" required>
-                </div>
-                <button type="submit" class="modal-button">Register</button>
-            </form>
-            <div class="switch-form">
-                <p>Already have an account? <a href="#" id="switch-to-login">Login</a></p>
-            </div>
-        </div>
-    </div>
-
+    
     <script src="script.js"></script>
 </body>
 </html>
