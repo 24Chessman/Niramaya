@@ -403,3 +403,11 @@ body {
         padding: 20px;
     }
 }
+
+.logo {
+    cursor: pointer;
+}
+
+.site-name {
+    cursor: pointer;
+}

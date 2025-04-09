@@ -59,3 +59,13 @@ async function fetchResearchPapers() {
 document.addEventListener("DOMContentLoaded", function () {
     fetchResearchPapers();
 });
+
+document.querySelector(".logo").onclick = function(e) {
+    e.preventDefault(); // Prevent any default behavior if applicable
+    window.location.href = "home.html";
+};
+
+document.querySelector(".site-name").onclick = function(e) {
+    e.preventDefault(); // Prevent any default behavior if applicable
+    window.location.href = "home.html";
+};
