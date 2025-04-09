@@ -6,7 +6,7 @@
     <title>Niramaya</title>
     <link rel="icon" type="image/png" href="N-16.png">
     
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/js/all.min.js" crossorigin="anonymous"></script>
 
     <style>
         /* Header Styles */
@@ -842,7 +842,7 @@
             const storedFamilyName = localStorage.getItem("familyName");
 
             // Set isLoggedIn if any critical data is present
-            if (storedEmail && storedAccountId && storedSelectedMemberId && storedSelectedMemberName) {
+            if (storedEmail && storedAccountId && (storedSelectedMemberId || storedFamilyName)) {
                 isLoggedIn = true;
             } else {
                 isLoggedIn = false;
@@ -851,6 +851,33 @@
 
             updateNavButtons();
             updateGreeting();
+
+            // If logged in but no member selected, prompt for member selection
+            if (isLoggedIn && !storedSelectedMemberId) {
+                const accountId = localStorage.getItem("accountId");
+                if (accountId) {
+                    fetch("http://127.0.0.1:5000/getmembers", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ account_id: accountId })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success && data.members && data.members.length > 0) {
+                            openMemberSelectionModal(data.members);
+                            document.getElementById("input-container").style.display = "none";
+                            document.getElementById("chat-container").style.display = "none";
+                            document.getElementById("chat-footer").style.display = "none";
+                        } else {
+                            openAddMemberModal();
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error fetching members:", error);
+                        alert("An error occurred while fetching members. Please try again.");
+                    });
+                }
+            }
         };
 
         // Scroll to Bottom of Chat
@@ -984,7 +1011,7 @@
                 // Save chat history only if logged in
                 if (isLoggedIn) {
                     const accountId = localStorage.getItem("accountId");
-                    const memberId = localStorage.getItem("selectedMemberId"); // Fixed typo: getElementById to getItem
+                    const memberId = localStorage.getItem("selectedMemberId");
                     if (accountId && memberId) {
                         fetch("http://127.0.0.1:5000/savechat", {
                             method: "POST",
@@ -993,7 +1020,8 @@
                                 account_id: accountId,
                                 member_id: memberId,
                                 user_input: userInput,
-                                bot_response: data.answer
+                                bot_response: data.answer,
+                                model: model // Add model to the payload
                             })
                         })
                         .then(saveResponse => saveResponse.json())
@@ -1064,12 +1092,17 @@
             const familyName = localStorage.getItem("familyName");
             const selectedMemberName = localStorage.getItem("selectedMemberName");
             
-            if (selectedMemberName && isLoggedIn) {
-                welcomeMessage.textContent = `Welcome, ${selectedMemberName}`;
-                welcomeMessage.style.display = "block";
-            } else if (familyName && familyName !== "undefined" && isLoggedIn) {
-                welcomeMessage.textContent = `Welcome, ${familyName}`;
-                welcomeMessage.style.display = "block";
+            if (isLoggedIn) {
+                if (selectedMemberName) {
+                    welcomeMessage.textContent = `Welcome, ${selectedMemberName}`;
+                    welcomeMessage.style.display = "block";
+                } else if (familyName && familyName !== "undefined") {
+                    welcomeMessage.textContent = `Welcome, ${familyName}`;
+                    welcomeMessage.style.display = "block";
+                } else {
+                    welcomeMessage.textContent = "Welcome! Please select or add a member.";
+                    welcomeMessage.style.display = "block";
+                }
             } else {
                 welcomeMessage.style.display = "none";
             }
@@ -1189,7 +1222,7 @@
         }
 
         // Handle Logout
-        function logout() {
+        function    logout() {
             console.log("Before clearing localStorage:", localStorage);
             
             isLoggedIn = false;
@@ -1202,7 +1235,8 @@
             localStorage.removeItem("memberDataTimestamp");
             
             updateNavButtons();
-            updateGreeting();
+            // updateGreeting();
+            newChat();
             closeProfileModal();
         }
 
@@ -1478,6 +1512,7 @@
                                 card.innerHTML = `
                                     <h3 class="history-title">${item.question}</h3>
                                     <p class="history-timestamp">${new Date(item.timestamp).toLocaleString()}</p>
+                                    <p><strong>Model:</strong> ${item.model}</p> <!-- Display model name -->
                                     <div class="history-actions">
                                         <i class="fas fa-trash" title="Delete" onclick="deleteHistory(event, ${item.history_id})"></i>
                                     </div>
@@ -1485,7 +1520,7 @@
                                 // Add click event to display conversation
                                 card.onclick = (e) => {
                                     e.stopPropagation(); // Prevent delete icon click from triggering this
-                                    displayConversation(item.question, item.response);
+                                    displayConversation(item.question, item.response, item.model); // Pass model
                                     closeHistoryModal();
                                 };
                                 historyList.appendChild(card);
@@ -1506,7 +1541,7 @@
         }
 
         // Display Conversation in Chat Container (Updated to Append)
-        function displayConversation(question, response) {
+        function displayConversation(question, response, model) {
             const chatContainer = document.getElementById("chat-container");
 
             // Only hide greeting/input and show chat container if it's the first message
@@ -1529,17 +1564,53 @@
             // Add bot message
             let botMessage = document.createElement("div");
             botMessage.classList.add("chat-message", "bot-message");
-            let answerList = document.createElement("ul");
-            answerList.style.paddingLeft = "20px";
-            let sentences = response.split(". ");
-            sentences.forEach(sentence => {
-                if (sentence.trim()) {
-                    let listItem = document.createElement("li");
-                    listItem.textContent = sentence.trim() + ".";
-                    answerList.appendChild(listItem);
-                }
-            });
-            botMessage.appendChild(answerList);
+
+            if (model === "Gemini") {
+                let responseDiv = document.createElement("div");
+                responseDiv.className = "gemini-response";
+
+                let lines = response.split("\n").map(line => line.trim()).filter(line => line.length > 0);
+                let currentList = null;
+
+                lines.forEach(line => {
+                    if (line.startsWith("*")) {
+                        if (!currentList) {
+                            currentList = document.createElement("ul");
+                            currentList.style.paddingLeft = "20px";
+                            responseDiv.appendChild(currentList);
+                        }
+                        let listItem = document.createElement("li");
+                        let content = line.replace(/^[*]\s*/, "").trim();
+                        content = content.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+                        listItem.innerHTML = content;
+                        currentList.appendChild(listItem);
+                    } else {
+                        if (currentList) {
+                            currentList = null;
+                        }
+                        let paragraph = document.createElement("p");
+                        let content = line.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+                        paragraph.innerHTML = content;
+                        responseDiv.appendChild(paragraph);
+                    }
+                });
+
+                botMessage.appendChild(responseDiv);
+            } else {
+                // Assume BioGPT or other models use sentence-based list
+                let answerList = document.createElement("ul");
+                answerList.style.paddingLeft = "20px";
+                let sentences = response.split(". ");
+                sentences.forEach(sentence => {
+                    if (sentence.trim()) {
+                        let listItem = document.createElement("li");
+                        listItem.textContent = sentence.trim() + ".";
+                        answerList.appendChild(listItem);
+                    }
+                });
+                botMessage.appendChild(answerList);
+            }
+
             chatContainer.appendChild(botMessage);
 
             scrollToBottom();

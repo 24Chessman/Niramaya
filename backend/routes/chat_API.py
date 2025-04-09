@@ -29,8 +29,9 @@ def save_chat():
         member_id = data.get('member_id')
         user_input = data.get('user_input')
         bot_response = data.get('bot_response')
+        model = data.get('model')
 
-        if not all([account_id, member_id, user_input, bot_response]):
+        if not all([account_id, member_id, user_input, bot_response, model]):
             return jsonify({"success": False, "message": "Missing required fields"}), 400
 
         # Convert IDs to integers
@@ -43,10 +44,10 @@ def save_chat():
 
         # Insert chat history into the database
         cursor.execute("""
-            INSERT INTO chat_history_tbl (account_id, member_id, user_input, bot_response)
-            VALUES (%s, %s, %s, %s)
+            INSERT INTO chat_history_tbl (account_id, member_id, user_input, bot_response, model)
+            VALUES (%s, %s, %s, %s, %s)
             RETURNING history_id
-        """, (account_id, member_id, user_input, bot_response))
+        """, (account_id, member_id, user_input, bot_response,model))
         
         history_id = cursor.fetchone()[0]
         conn.commit()
@@ -89,16 +90,11 @@ def get_chat():
         member_id = int(member_id)
         conn = connect_db()
         cursor = conn.cursor()
-        cursor.execute("""
-            SELECT history_id, user_input, bot_response, timestamp 
-            FROM chat_history_tbl 
-            WHERE account_id = %s AND member_id = %s 
-            ORDER BY timestamp DESC
-        """, (account_id, member_id))
+        cursor.execute("select history_id,user_input,bot_response,model,timestamp from chat_history_tbl where account_id=%s and member_id=%s ORDER BY timestamp DESC",(account_id,member_id))
         history = cursor.fetchall()
 
         history_list = [
-            {"history_id": h[0], "question": h[1], "response": h[2], "timestamp": h[3].isoformat()}
+            {"history_id": h[0], "question": h[1], "response": h[2], "model": h[3], "timestamp": h[4].isoformat()}
             for h in history
         ]
 
