@@ -529,6 +529,23 @@
             font-weight: 500;
         }
 
+        .member-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 5px;
+        }
+
+        .member-actions i {
+            color: #888;
+            font-size: 16px;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .member-actions i:hover {
+            color: #ffffff;
+        }
+
         /* profile */
         .profile-card {
             background: #3a3a3a;
@@ -664,6 +681,158 @@
         #history-btn, #profile-btn, #login-btn, #register-btn {
             cursor: pointer;
         }
+
+        /* Radio Group Styling */
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px; /* Space between radio options */
+            padding: 10px 0; /* Match input padding */
+            background-color: #3a3a3a; /* Match input background */
+            border: 1px solid #555555; /* Match input border */
+            border-radius: 8px; /* Match input border-radius */
+            padding-left: 12px; /* Align with input padding */
+            margin-top: 5px; /* Space below label */
+        }
+
+        .radio-label {
+            display: flex;
+            align-items: center;
+            gap: 8px; /* Space between radio and text */
+            color: #e0e0e0; /* Match text color */
+            font-size: 16px; /* Match input font size */
+        }
+
+        .radio-text {
+            margin: 0; /* Remove default margin */
+        }
+
+        input[type="radio"] {
+            appearance: none; /* Remove default radio styling */
+            width: 16px;
+            height: 16px;
+            border: 2px solid #666666; /* Custom border */
+            border-radius: 50%; /* Circular shape */
+            outline: none;
+            cursor: pointer;
+            position: relative;
+            background-color: #2a2a2a; /* Dark background */
+        }
+
+        input[type="radio"]:checked {
+            border-color: #888888; /* Highlight when checked */
+        }
+
+        input[type="radio"]:checked::after {
+            content: '';
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background-color: #888888; /* Checked dot color */
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .form-group .radio-group {
+        width: 100%;
+        box-sizing: border-box;
+        }
+
+        /* Update Profile Modal Specific Styles */
+        #update-profile-modal .modal-content {
+            width: 450px !important;
+            max-width: 90% !important;
+            padding: 40px !important;
+            box-sizing: border-box !important;
+            /* Override flex alignment to stretch children */
+            align-items: stretch !important;
+        }
+
+        #update-profile-modal .form-group {
+            width: 100% !important;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+        }
+
+        #update-profile-modal .form-group label {
+            display: block !important;
+            color: #e0e0e0 !important;
+            margin-bottom: 8px !important;
+            font-size: 16px !important;
+            font-weight: 500 !important;
+        }
+
+        #update-profile-modal .form-group input {
+            width: 100% !important;
+            padding: 12px;
+            background-color: #3a3a3a;
+            border: 1px solid #555555;
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            box-sizing: border-box;
+        }
+
+        #update-profile-modal .form-group input:focus {
+            border-color: #888888;
+            box-shadow: 0 0 8px rgba(136, 136, 136, 0.3);
+        }
+
+        /* Radio Group Styling for Update Profile Modal */
+        #update-profile-modal .radio-group {
+            width: 100% !important;
+            padding: 10px 12px;
+            background-color: #3a3a3a;
+            border: 1px solid #555555;
+            border-radius: 8px;
+            box-sizing: border-box;
+            margin-top: 5px;
+        }
+
+        #update-profile-modal .radio-label {
+            display: flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            color: #e0e0e0 !important;
+            font-size: 16px !important;
+            margin-bottom: 8px !important;
+        }
+
+        #update-profile-modal .radio-text {
+            margin: 0 !important;
+        }
+
+        #update-profile-modal input[type="radio"] {
+            appearance: none !important;
+            width: 16px !important;
+            height: 16px !important;
+            border: 2px solid #666666 !important;
+            border-radius: 50% !important;
+            outline: none !important;
+            cursor: pointer !important;
+            position: relative !important;
+            background-color: #2a2a2a !important;
+        }
+
+        #update-profile-modal input[type="radio"]:checked {
+            border-color: #888888 !important;
+        }
+
+        #update-profile-modal input[type="radio"]:checked::after {
+            content: '' !important;
+            position: absolute !important;
+            width: 8px !important;
+            height: 8px !important;
+            background-color: #888888 !important;
+            border-radius: 50% !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+        }
     </style>
 </head>
 <body>
@@ -764,7 +933,7 @@
     <!-- Member Selection Modal -->
     <div id="member-selection-modal" class="modal" style="display: none;">
         <div class="modal-content">
-            <h2>Select Your Profile</h2>
+            <h2>Select Member</h2>
             <div id="member-list" class="member-list">
                 <!-- Members will be dynamically added here -->
             </div>
@@ -786,9 +955,50 @@
                 <div class="profile-detail"><strong>Weight:</strong> <span id="profile-weight"></span></div>
             </div>
             <div class="profile-actions">
+                <button class="modal-btn" onclick="openUpdateProfileModal()">Update Profile</button>
                 <button class="modal-btn" onclick="changeMember()">Change Member</button>
                 <button class="modal-btn" onclick="logout()">Logout</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Update Profile Modal -->
+    <div id="update-profile-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeUpdateProfileModal()">×</span>
+            <h2>Update Profile</h2>
+            <form id="update-profile-form" onsubmit="handleUpdateProfile(event)">
+                <div class="form-group">
+                    <label for="update-name">Name</label>
+                    <input type="text" id="update-name" name="name" placeholder="Enter name" required>
+                </div>
+                <div class="form-group">
+                    <label>Gender</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" id="update-gender-male" name="update-gender" value="Male" required>
+                            <span class="radio-text">Male</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" id="update-gender-female" name="update-gender" value="Female">
+                            <span class="radio-text">Female</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="update-age">Age</label>
+                    <input type="number" id="update-age" name="age" placeholder="Enter age" required>
+                </div>
+                <div class="form-group">
+                    <label for="update-height">Height (cm)</label>
+                    <input type="number" id="update-height" name="height" placeholder="Enter height in cm" required>
+                </div>
+                <div class="form-group">
+                    <label for="update-weight">Weight (kg)</label>
+                    <input type="number" id="update-weight" name="weight" placeholder="Enter weight in kg" required>
+                </div>
+                <button type="submit" class="modal-btn">Update</button>
+            </form>
         </div>
     </div>
 
@@ -802,8 +1012,17 @@
                     <input type="text" id="member-name" name="name" placeholder="Enter member name" required>
                 </div>
                 <div class="form-group">
-                    <label for="member-gender">Gender</label>
-                    <input type="text" id="member-gender" name="gender" placeholder="Enter gender" required>
+                    <label>Gender</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" id="member-gender-male" name="member-gender" value="Male" required>
+                            <span class="radio-text">Male</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" id="member-gender-female" name="member-gender" value="Female">
+                            <span class="radio-text">Female</span>
+                        </label>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="member-age">Age</label>
@@ -1361,6 +1580,9 @@
                 memberCard.classList.add("member-card");
                 memberCard.innerHTML = `
                     <div class="member-name">${member.name}</div>
+                    <div class="member-actions">
+                        <i class="fas fa-trash" title="Delete" onclick="confirmDeleteMember('${member.member_id}')"></i>
+                    </div>
                 `;
                 // Check if this member is currently selected
                 if (member.member_id == localStorage.getItem("selectedMemberId")) {
@@ -1371,6 +1593,89 @@
             });
 
             document.getElementById("member-selection-modal").style.display = "flex";
+        }
+
+        function confirmDeleteMember(memberId) {
+            if (confirm("Are you sure you want to delete this member? This action cannot be undone.")) {
+                deleteMember(memberId);
+            }
+        }
+
+        async function deleteMember(memberId) {
+            const accountId = localStorage.getItem("accountId");
+
+            if (!accountId || !memberId) {
+                console.error("Account ID or Member ID is missing.");
+                return;
+            }
+
+            try {
+                const response = await fetch("http://127.0.0.1:5000/removeuser", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        member_id: memberId,
+                        account_id: accountId
+                    })
+                });
+
+                const data = await response.json();
+                console.log("Delete Member API Response:", data);
+
+                if (data.success) {
+                    // Fetch updated member list
+                    fetch("http://127.0.0.1:5000/getmembers", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ account_id: accountId })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            const remainingMembers = data.members;
+                            if (remainingMembers.length === 0) {
+                                // If last member is deleted, open Add Member modal and prevent closing
+                                openAddMemberModal();
+                                document.getElementById("add-member-modal").onclick = (event) => {
+                                    event.stopPropagation(); // Prevent modal from closing on outside click
+                                };
+                                // Override window.onclick to prevent closing
+                                const originalOnClick = window.onclick;
+                                window.onclick = (event) => {
+                                    const addMemberModal = document.getElementById("add-member-modal");
+                                    if (event.target === addMemberModal) {
+                                        return; // Do nothing, prevent closing
+                                    }
+                                    originalOnClick(event); // Call original handler for other modals
+                                };
+                            } else {
+                                // Reload member selection modal
+                                openMemberSelectionModal(remainingMembers);
+                                // Clear selected member if deleted
+                                if (localStorage.getItem("selectedMemberId") === memberId) {
+                                    localStorage.removeItem("selectedMemberId");
+                                    localStorage.removeItem("selectedMemberName");
+                                    document.getElementById("input-container").style.display = "none";
+                                    document.getElementById("chat-container").style.display = "none";
+                                    document.getElementById("chat-footer").style.display = "none";
+                                    isFirstMessage = true;
+                                    updateGreeting();
+                                }
+                            }
+                        } else {
+                            console.error("Failed to fetch updated members:", data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error fetching updated members:", error);
+                    });
+                } else {
+                    alert(data.message || "Failed to delete member.");
+                }
+            } catch (error) {
+                console.error("Error deleting member:", error);
+                alert("An error occurred while deleting the member. Please try again.");
+            }
         }
 
         function closeMemberSelectionModal() {
@@ -1486,14 +1791,14 @@
             event.preventDefault();
 
             const name = document.getElementById("member-name").value;
-            const gender = document.getElementById("member-gender").value;
+            const gender = document.querySelector('input[name="member-gender"]:checked')?.value;
             const age = document.getElementById("member-age").value;
             const height = document.getElementById("member-height").value;
             const weight = document.getElementById("member-weight").value;
             const accountId = localStorage.getItem("accountId");
 
-            if (!accountId) {
-                alert("Account ID not found. Please register again.");
+            if (!accountId || !gender) {
+                alert("Account ID or gender not found. Please select a gender!");
                 return;
             }
 
@@ -1520,16 +1825,33 @@
                     isLoggedIn = true;
                     localStorage.setItem("selectedMemberId", data.member_id); // Assuming the API returns member_id
                     localStorage.setItem("selectedMemberName", name);
-                    localStorage.setItem("userEmail", localStorage.getItem("userEmail") || ""); // Ensure email is set
-                    localStorage.setItem("familyName", localStorage.getItem("familyName") || ""); // Ensure family name is set
+                    localStorage.setItem("userEmail", localStorage.getItem("userEmail") || "");
+                    localStorage.setItem("familyName", localStorage.getItem("familyName") || "");
                     updateNavButtons();
 
-                    // Enable other functionality
+                    // Re-enable other functionality
                     document.getElementById("input-container").style.display = "flex";
                     document.getElementById("chat-container").style.display = "none"; // Reset chat container
                     document.getElementById("chat-footer").style.display = "none";
                     isFirstMessage = true;
                     updateGreeting();
+
+                    // Restore normal modal closing behavior
+                    window.onclick = (event) => {
+                        const loginModal = document.getElementById("login-modal");
+                        const registerModal = document.getElementById("register-modal");
+                        const memberModal = document.getElementById("member-selection-modal");
+                        const addMemberModal = document.getElementById("add-member-modal");
+                        const profileModal = document.getElementById("profile-modal");
+                        const historyModal = document.getElementById("history-modal");
+
+                        if (event.target === loginModal) closeLoginModal();
+                        if (event.target === registerModal) closeRegisterModal();
+                        if (event.target === memberModal && localStorage.getItem("selectedMemberId")) closeMemberSelectionModal();
+                        if (event.target === addMemberModal && localStorage.getItem("selectedMemberId")) closeAddMemberModal();
+                        if (event.target === profileModal) closeProfileModal();
+                        if (event.target === historyModal) closeHistoryModal();
+                    };
                 } else {
                     alert(data.message);
                 }
@@ -1538,12 +1860,11 @@
                 alert("An error occurred while adding the member. Please try again.");
             }
         }
-
         function openAddMemberModal() {
             const addMemberModal = document.getElementById("add-member-modal");
             if (addMemberModal) {
-                addMemberModal.style.display = "flex"; // Ensure modal is visible
-                // Hide other UI elements to focus on the modal
+                addMemberModal.style.display = "flex";
+                // Hide other UI elements
                 document.getElementById("input-container").style.display = "none";
                 document.getElementById("chat-container").style.display = "none";
                 document.getElementById("chat-footer").style.display = "none";
@@ -1759,6 +2080,106 @@
             e.preventDefault();
             openHistoryModal();
         };
+
+        // Update Profile
+        // Open Update Profile Modal
+        function openUpdateProfileModal() {
+            const memberId = localStorage.getItem("selectedMemberId");
+            const accountId = localStorage.getItem("accountId");
+
+            if (!memberId || !accountId) {
+                alert("Please select a member first!");
+                return;
+            }
+
+            // Populate the form with current profile data
+            fetch("http://127.0.0.1:5000/getuser", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ member_id: memberId, account_id: accountId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById("update-name").value = data.name || "";
+                    document.getElementById("update-age").value = data.age || "";
+                    document.getElementById("update-height").value = data.height || "";
+                    document.getElementById("update-weight").value = data.weight || "";
+                    const genderRadios = document.getElementsByName("update-gender");
+                    for (let radio of genderRadios) {
+                        if (radio.value === data.gender) {
+                            radio.checked = true;
+                            break;
+                        }
+                    }
+                    document.getElementById("update-profile-modal").style.display = "flex";
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error("Error fetching profile for update:", error);
+                alert("An error occurred while fetching profile details. Please try again.");
+            });
+        }
+
+        // Close Update Profile Modal
+        function closeUpdateProfileModal() {
+            document.getElementById("update-profile-modal").style.display = "none";
+            document.getElementById("update-profile-form").reset();
+        }
+
+        // Handle Update Profile Form Submission
+        async function handleUpdateProfile(event) {
+            event.preventDefault();
+
+            const memberId = localStorage.getItem("selectedMemberId");
+            const accountId = localStorage.getItem("accountId");
+            const name = document.getElementById("update-name").value;
+            const gender = document.querySelector('input[name="update-gender"]:checked')?.value;
+            const age = document.getElementById("update-age").value;
+            const height = document.getElementById("update-height").value;
+            const weight = document.getElementById("update-weight").value;
+
+            if (!memberId || !accountId || !gender) {
+                alert("Please fill all required fields, including gender!");
+                return;
+            }
+
+            try {
+                const response = await fetch("http://127.0.0.1:5000/updatemember", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        member_id: memberId,
+                        account_id: accountId,
+                        name: name,
+                        gender: gender,
+                        age: age,
+                        height: height,
+                        weight: weight
+                    })
+                });
+
+                const data = await response.json();
+                console.log("Update Member API Response:", data);
+
+                if (data.success) {
+                    // Update local storage if name changes
+                    if (localStorage.getItem("selectedMemberName") !== name) {
+                        localStorage.setItem("selectedMemberName", name);
+                    }
+                    // Close the update profile modal and open the profile modal without alert
+                    closeUpdateProfileModal();
+                    openProfileModal();
+                } else {
+                    alert(data.message || "Failed to update profile.");
+                }
+            } catch (error) {
+                console.error("Error updating profile:", error);
+                alert("An error occurred while updating the profile. Please try again.");
+            }
+        }
 
     </script>
 </body>
