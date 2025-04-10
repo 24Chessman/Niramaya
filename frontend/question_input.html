@@ -660,6 +660,10 @@
         .site-name {
             cursor: pointer;
         }
+
+        #history-btn, #profile-btn, #login-btn, #register-btn {
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -671,10 +675,10 @@
         <div class="site-name">Niramaya</div>
         <div class="nav">
             <a onclick="newChat()" href="question_input.html">New chat</a>
-            <a href="#">History</a>
-            <a id="profile-btn" href="#" style="display: none;">Profile</a>
-            <a id="login-btn" href="#" onclick="openLoginModal()">Login</a>
-            <a id="register-btn" href="#" onclick="openRegisterModal()">Register</a>
+            <a id="history-btn">History</a>
+            <a id="profile-btn" style="display: none;">Profile</a>
+            <a id="login-btn" onclick="openLoginModal()">Login</a>
+            <a id="register-btn" onclick="openRegisterModal()">Register</a>
         </div>
     </div>
     
@@ -1147,7 +1151,7 @@
             const loginBtn = document.getElementById("login-btn");
             const registerBtn = document.getElementById("register-btn");
             const profileBtn = document.getElementById("profile-btn");
-            const historyBtn = document.querySelector('a[href="#"]'); // Select the History link
+            const historyBtn = document.getElementById("history-btn"); // Select the History link
 
             if (isLoggedIn) {
                 loginBtn.style.display = "none";
@@ -1751,7 +1755,7 @@
         }
 
         // Update the History link click handler
-        document.querySelector('a[href="#"]').onclick = function(e) {
+        document.getElementById("history-btn").onclick = function(e) {
             e.preventDefault();
             openHistoryModal();
         };
