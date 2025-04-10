@@ -683,6 +683,8 @@
         <select class="model-select" id="model-select">
             <option value="BioGPT">BioGPT</option>
             <option value="Gemini">Gemini</option>
+            <option value="LRv1">LRv1</option>
+            <option value="LRv2">LRv2</option>
         </select>
         <button onclick="sendMessage()">➤</button>
     </div>
@@ -697,6 +699,8 @@
             <select class="model-select" id="model-select-footer">
                 <option value="BioGPT">BioGPT</option>
                 <option value="Gemini">Gemini</option>
+                <option value="LRv1">LRv1</option>
+                <option value="LRv2">LRv2</option>
             </select>
             <button onclick="sendMessage()">➤</button>
         </div>
@@ -908,7 +912,7 @@
             let chatContainer = document.getElementById("chat-container");
 
             if (userInput === "") {
-                alert("Please enter a message!");  
+                alert("Please enter a message!");
                 return;
             }
 
@@ -920,8 +924,8 @@
 
             if (isFirstMessage) {
                 document.getElementById("greeting-container").style.display = "none";
-                document.getElementById("input-container").style.display = "none"; 
-                document.getElementById("chat-container").style.display = "flex"; 
+                document.getElementById("input-container").style.display = "none";
+                document.getElementById("chat-container").style.display = "flex";
                 document.getElementById("chat-footer").style.display = "flex";
                 document.getElementById("chat-footer").style.marginBottom = "10px";
                 isFirstMessage = false;
@@ -937,11 +941,33 @@
             inputField.value = "";
 
             try {
-                let endpoint = model === "BioGPT" ? "http://127.0.0.1:5000/askbiogpt" : "http://127.0.0.1:5000/askgemini";
+                let endpoint = "";
+                let payload = { question: userInput }; // Default payload
+                switch (model) {
+                    case "BioGPT":
+                        endpoint = "http://127.0.0.1:5000/askbiogpt";
+                        break;
+                    case "Gemini":
+                        endpoint = "http://127.0.0.1:5000/askgemini";
+                        break;
+                    case "LRv1":
+                        endpoint = "http://127.0.0.1:5000/asklrv1";
+                        // Adjust payload if backend expects 'symptoms' instead of 'question'
+                        payload = { symptoms: userInput }; // Try this if 'question' causes 400
+                        break;
+                    case "LRv2":
+                        endpoint = "http://127.0.0.1:5000/asklrv2";
+                        payload = { symptoms: userInput }; // Try this if 'question' causes 400
+                        break;
+                    default:
+                        throw new Error("Invalid model selected.");
+                }
+
+                console.log("Sending request to:", endpoint, "with payload:", payload); // Debug log
                 let response = await fetch(endpoint, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ question: userInput, model: model })
+                    body: JSON.stringify(payload)
                 });
 
                 if (!response.ok) {
@@ -970,10 +996,8 @@
                 } else if (model === "Gemini") {
                     let responseDiv = document.createElement("div");
                     responseDiv.className = "gemini-response";
-
                     let lines = data.answer.split("\n").map(line => line.trim()).filter(line => line.length > 0);
                     let currentList = null;
-
                     lines.forEach(line => {
                         if (line.startsWith("*")) {
                             if (!currentList) {
@@ -987,32 +1011,77 @@
                             listItem.innerHTML = content;
                             currentList.appendChild(listItem);
                         } else {
-                            if (currentList) {
-                                currentList = null;
-                            }
+                            if (currentList) currentList = null;
                             let paragraph = document.createElement("p");
                             let content = line.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
                             paragraph.innerHTML = content;
                             responseDiv.appendChild(paragraph);
                         }
                     });
-
+                    botMessage.appendChild(responseDiv);
+                } else if (model === "LRv1") {
+                    let responseDiv = document.createElement("div");
+                    responseDiv.className = "gemini-response";
+                    let diseasePara = document.createElement("p");
+                    diseasePara.innerHTML = `<strong>Predicted Disease:</strong> ${data.predicted_disease || "No disease predicted."}`;
+                    responseDiv.appendChild(diseasePara);
+                    let descriptionPara = document.createElement("p");
+                    descriptionPara.innerHTML = `<strong>Description:</strong> ${data.Description || "No description available."}`;
+                    responseDiv.appendChild(descriptionPara);
+                    botMessage.appendChild(responseDiv);
+                } else if (model === "LRv2") {
+                    let responseDiv = document.createElement("div");
+                    responseDiv.className = "gemini-response";
+                    let diseasePara = document.createElement("p");
+                    diseasePara.innerHTML = `<strong>Predicted Disease:</strong> ${data.predicted_disease || "No disease predicted."}`;
+                    responseDiv.appendChild(diseasePara);
+                    let descriptionPara = document.createElement("p");
+                    descriptionPara.innerHTML = `<strong>Description:</strong> ${data.description || "No description available."}`;
+                    responseDiv.appendChild(descriptionPara);
+                    if (data.precautions && data.precautions.length > 0) {
+                        let precautionTitle = document.createElement("p");
+                        precautionTitle.innerHTML = `<strong>Precautions:</strong>`;
+                        responseDiv.appendChild(precautionTitle);
+                        let precautionList = document.createElement("ul");
+                        precautionList.style.paddingLeft = "20px";
+                        data.precautions.forEach(precaution => {
+                            let listItem = document.createElement("li");
+                            listItem.textContent = precaution;
+                            precautionList.appendChild(listItem);
+                        });
+                        responseDiv.appendChild(precautionList);
+                    }
                     botMessage.appendChild(responseDiv);
                 }
 
                 chatContainer.appendChild(botMessage);
 
-                // Increment guest question count if not logged in
+                // Increment guest question count if not loggedIn
                 if (!isLoggedIn) {
                     guestQuestionCount++;
                     localStorage.setItem("guestQuestionCount", guestQuestionCount);
                 }
 
-                // Save chat history only if logged in
+                // Save chat history only if loggedIn
                 if (isLoggedIn) {
                     const accountId = localStorage.getItem("accountId");
                     const memberId = localStorage.getItem("selectedMemberId");
                     if (accountId && memberId) {
+                        let botResponse;
+                        if (model === "LRv1") {
+                            botResponse = JSON.stringify({
+                                Description: data.Description || "No description available.",
+                                predicted_disease: data.predicted_disease || "No disease predicted."
+                            });
+                        } else if (model === "LRv2") {
+                            botResponse = JSON.stringify({
+                                predicted_disease: data.predicted_disease || "No disease predicted.",
+                                description: data.description || "No description available.",
+                                precautions: data.precautions || []
+                            });
+                        } else {
+                            botResponse = data.answer;
+                        }
                         fetch("http://127.0.0.1:5000/savechat", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
@@ -1020,8 +1089,8 @@
                                 account_id: accountId,
                                 member_id: memberId,
                                 user_input: userInput,
-                                bot_response: data.answer,
-                                model: model // Add model to the payload
+                                bot_response: botResponse,
+                                model: model
                             })
                         })
                         .then(saveResponse => saveResponse.json())
@@ -1045,7 +1114,7 @@
                 console.error("Error:", error);
                 let errorMessage = document.createElement("div");
                 errorMessage.classList.add("chat-message", "bot-message");
-                errorMessage.style.color = "red"; // Ensure error stands out
+                errorMessage.style.color = "red";
                 errorMessage.textContent = `❌ ${error.message || "Unable to fetch response. Try again later!"}`;
                 chatContainer.appendChild(errorMessage);
 
@@ -1320,7 +1389,6 @@
             setTimeout(() => {
                 closeMemberSelectionModal();
                 updateGreeting();
-                openProfileModal(); // Optional: Show profile after selection
             }, 300);
         }
 
@@ -1502,7 +1570,7 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        historyList.innerHTML = ""; // Clear existing cards
+                        historyList.innerHTML = "";
                         if (data.history.length === 0) {
                             historyList.innerHTML = `<p>No history found for this member.</p>`;
                         } else {
@@ -1512,15 +1580,14 @@
                                 card.innerHTML = `
                                     <h3 class="history-title">${item.question}</h3>
                                     <p class="history-timestamp">${new Date(item.timestamp).toLocaleString()}</p>
-                                    <p><strong>Model:</strong> ${item.model}</p> <!-- Display model name -->
+                                    <p><strong>Model:</strong> ${item.model}</p>
                                     <div class="history-actions">
                                         <i class="fas fa-trash" title="Delete" onclick="deleteHistory(event, ${item.history_id})"></i>
                                     </div>
                                 `;
-                                // Add click event to display conversation
                                 card.onclick = (e) => {
-                                    e.stopPropagation(); // Prevent delete icon click from triggering this
-                                    displayConversation(item.question, item.response, item.model); // Pass model
+                                    e.stopPropagation();
+                                    displayConversation(item.question, item.response, item.model);
                                     closeHistoryModal();
                                 };
                                 historyList.appendChild(card);
@@ -1554,24 +1621,41 @@
                 isFirstMessage = false;
             }
 
+            // Parse the response if it's a JSON string (e.g., from LRv1 or LRv2)
+            let data;
+            try {
+                data = typeof response === "string" ? JSON.parse(response) : response;
+            } catch (e) {
+                console.error("Failed to parse response:", response, e);
+                data = { answer: response }; // Fallback for non-JSON responses
+            }
+
             // Append new conversation without clearing existing content
-            // Add user message
             let userMessage = document.createElement("div");
             userMessage.classList.add("chat-message", "user-message");
             userMessage.textContent = question;
             chatContainer.appendChild(userMessage);
 
-            // Add bot message
             let botMessage = document.createElement("div");
             botMessage.classList.add("chat-message", "bot-message");
 
-            if (model === "Gemini") {
+            if (model === "BioGPT") {
+                let answerList = document.createElement("ul");
+                answerList.style.paddingLeft = "20px";
+                let sentences = data.answer.split(". ");
+                sentences.forEach(sentence => {
+                    if (sentence.trim()) {
+                        let listItem = document.createElement("li");
+                        listItem.textContent = sentence.trim() + ".";
+                        answerList.appendChild(listItem);
+                    }
+                });
+                botMessage.appendChild(answerList);
+            } else if (model === "Gemini") {
                 let responseDiv = document.createElement("div");
                 responseDiv.className = "gemini-response";
-
-                let lines = response.split("\n").map(line => line.trim()).filter(line => line.length > 0);
+                let lines = data.answer.split("\n").map(line => line.trim()).filter(line => line.length > 0);
                 let currentList = null;
-
                 lines.forEach(line => {
                     if (line.startsWith("*")) {
                         if (!currentList) {
@@ -1585,34 +1669,50 @@
                         listItem.innerHTML = content;
                         currentList.appendChild(listItem);
                     } else {
-                        if (currentList) {
-                            currentList = null;
-                        }
+                        if (currentList) currentList = null;
                         let paragraph = document.createElement("p");
                         let content = line.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
                         paragraph.innerHTML = content;
                         responseDiv.appendChild(paragraph);
                     }
                 });
-
                 botMessage.appendChild(responseDiv);
-            } else {
-                // Assume BioGPT or other models use sentence-based list
-                let answerList = document.createElement("ul");
-                answerList.style.paddingLeft = "20px";
-                let sentences = response.split(". ");
-                sentences.forEach(sentence => {
-                    if (sentence.trim()) {
+            } else if (model === "LRv1") {
+                let responseDiv = document.createElement("div");
+                responseDiv.className = "gemini-response";
+                let diseasePara = document.createElement("p");
+                diseasePara.innerHTML = `<strong>Predicted Disease:</strong> ${data.predicted_disease || "No disease predicted."}`;
+                responseDiv.appendChild(diseasePara);
+                let descriptionPara = document.createElement("p");
+                descriptionPara.innerHTML = `<strong>Description:</strong> ${data.Description || "No description available."}`;
+                responseDiv.appendChild(descriptionPara);
+                botMessage.appendChild(responseDiv);
+            } else if (model === "LRv2") {
+                let responseDiv = document.createElement("div");
+                responseDiv.className = "gemini-response";
+                let diseasePara = document.createElement("p");
+                diseasePara.innerHTML = `<strong>Predicted Disease:</strong> ${data.predicted_disease || "No disease predicted."}`;
+                responseDiv.appendChild(diseasePara);
+                let descriptionPara = document.createElement("p");
+                descriptionPara.innerHTML = `<strong>Description:</strong> ${data.description || "No description available."}`;
+                responseDiv.appendChild(descriptionPara);
+                if (data.precautions && data.precautions.length > 0) {
+                    let precautionTitle = document.createElement("p");
+                    precautionTitle.innerHTML = `<strong>Precautions:</strong>`;
+                    responseDiv.appendChild(precautionTitle);
+                    let precautionList = document.createElement("ul");
+                    precautionList.style.paddingLeft = "20px";
+                    data.precautions.forEach(precaution => {
                         let listItem = document.createElement("li");
-                        listItem.textContent = sentence.trim() + ".";
-                        answerList.appendChild(listItem);
-                    }
-                });
-                botMessage.appendChild(answerList);
+                        listItem.textContent = precaution;
+                        precautionList.appendChild(listItem);
+                    });
+                    responseDiv.appendChild(precautionList);
+                }
+                botMessage.appendChild(responseDiv);
             }
 
             chatContainer.appendChild(botMessage);
-
             scrollToBottom();
         }
 
@@ -1623,7 +1723,6 @@
             const memberId = localStorage.getItem("selectedMemberId");
 
             if (accountId && memberId && isLoggedIn) {
-                if (confirm("Are you sure you want to delete this history?")) {
                     fetch("http://127.0.0.1:5000/deletechat", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
@@ -1632,7 +1731,6 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            alert("History deleted successfully!");
                             loadHistory(); // Refresh the history list
                         } else {
                             alert("Failed to delete history: " + data.message);
@@ -1641,8 +1739,7 @@
                     .catch(error => {
                         console.error("Error deleting history:", error);
                         alert("Error deleting history. Try again later.");
-                    });
-                }
+                    }); 
             }
         }
 
