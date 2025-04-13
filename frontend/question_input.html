@@ -1258,6 +1258,12 @@
                     let descriptionPara = document.createElement("p");
                     descriptionPara.innerHTML = `<strong>Description:</strong> ${data.Description || "No description available."}`;
                     responseDiv.appendChild(descriptionPara);
+
+                    let disclaimerPara = document.createElement("p");
+                    disclaimerPara.style.fontStyle = "italic";
+                    disclaimerPara.style.color = "#555";
+                    disclaimerPara.textContent = "Disclaimer: Niramaya is not a doctor; please consult one. Don't share information that can identify you.";
+                    responseDiv.appendChild(disclaimerPara);
                     botMessage.appendChild(responseDiv);
                 } else if (model === "LRv2") {
                     let responseDiv = document.createElement("div");
@@ -1281,6 +1287,11 @@
                         });
                         responseDiv.appendChild(precautionList);
                     }
+                    let disclaimerPara = document.createElement("p");
+                    disclaimerPara.style.fontStyle = "italic";
+                    disclaimerPara.style.color = "#555";
+                    disclaimerPara.textContent = "Disclaimer: Niramaya is not a doctor; please consult one. Don't share information that can identify you.";
+                    responseDiv.appendChild(disclaimerPara);
                     botMessage.appendChild(responseDiv);
                 }
 
@@ -2018,6 +2029,11 @@
                 let descriptionPara = document.createElement("p");
                 descriptionPara.innerHTML = `<strong>Description:</strong> ${data.Description || "No description available."}`;
                 responseDiv.appendChild(descriptionPara);
+                let disclaimerPara = document.createElement("p");
+                disclaimerPara.style.fontStyle = "italic";
+                disclaimerPara.style.color = "#555";
+                disclaimerPara.textContent = "Disclaimer: Niramaya is not a doctor; please consult one. Don't share information that can identify you.";
+                responseDiv.appendChild(disclaimerPara);
                 botMessage.appendChild(responseDiv);
             } else if (model === "LRv2") {
                 let responseDiv = document.createElement("div");
@@ -2041,6 +2057,11 @@
                     });
                     responseDiv.appendChild(precautionList);
                 }
+                let disclaimerPara = document.createElement("p");
+                disclaimerPara.style.fontStyle = "italic";
+                disclaimerPara.style.color = "#555";
+                disclaimerPara.textContent = "Disclaimer: Niramaya is not a doctor; please consult one. Don't share information that can identify you.";
+                responseDiv.appendChild(disclaimerPara);
                 botMessage.appendChild(responseDiv);
             }
 

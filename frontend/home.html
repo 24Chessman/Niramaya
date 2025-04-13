@@ -26,15 +26,20 @@
             <h1>Niramaya: Your Personal Health Assistant</h1>
             <p>Empower your wellness journey with AI-driven insights, health tracking, and personalized advice.</p>
             <div class="cta-buttons">
-                <a href="question_input.html" class="button">Try Niramaya Now</a>
+                <a href="verify_human.html" class="button">Try Niramaya Now</a>
             </div>
         </div>
 
         <div class="container">
             <div class="research-section">
-                <h2>Latest Health Research</h2>
-                <p class="section-subtitle">Stay updated with cutting-edge health studies</p>
-                <div class="research-grid" id="research-papers"></div>
+                <div class="research-toggle" onclick="toggleResearch()">
+                    <span class="latest-title">Latest Research Paper</span>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="research-content" id="research-content">
+                    <p class="section-subtitle">Stay updated with cutting-edge health studies</p>
+                    <div class="research-grid" id="research-papers"></div>
+                </div>
             </div>
         </div>
     </main>
