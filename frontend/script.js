@@ -85,47 +85,43 @@ async function fetchResearchPapers() {
     }
 }
 
+// Updated toggleResearch function to handle first click expansion correctly
 function toggleResearch() {
     const content = document.getElementById('research-content');
     const toggle = document.querySelector('.research-toggle');
     const icon = toggle.querySelector('.toggle-icon');
+    const isCollapsed = content.style.maxHeight === '0px' || !content.style.maxHeight;
 
-    if (content.style.maxHeight) {
-        content.style.maxHeight = null;
-        icon.textContent = '▼';
+    if (isCollapsed) {
+        // Ensure content is fully loaded before expanding
+        if (content.innerHTML.includes('Loading')) {
+            fetchResearchPapers().then(() => {
+                content.style.maxHeight = content.scrollHeight + 'px';
+                icon.textContent = '▼';
+            });
+        } else {
+            content.style.maxHeight = content.scrollHeight + 'px';
+            icon.textContent = '▼';
+        }
     } else {
-        content.style.maxHeight = content.scrollHeight + 'px';
-        icon.textContent = '▲';
+        content.style.maxHeight = '0px';
+        icon.textContent = '▶';
     }
 }
-// Initially hide the research content
-document.getElementById('research-content').style.maxHeight = '0';
 
+// Load papers on page load and set initial state
 document.addEventListener("DOMContentLoaded", function () {
-    fetchResearchPapers();
+    fetchResearchPapers(); // Load papers on page load
+    document.getElementById('research-content').style.maxHeight = '0'; // Ensure section is closed initially
+
+    // Logo and site-name click handlers
+    document.querySelector(".logo").onclick = function(e) {
+        e.preventDefault();
+        window.location.href = "home.html";
+    };
+
+    document.querySelector(".site-name").onclick = function(e) {
+        e.preventDefault();
+        window.location.href = "home.html";
+    };
 });
-
-document.querySelector(".logo").onclick = function(e) {
-    e.preventDefault();
-    window.location.href = "home.html";
-};
-
-document.querySelector(".site-name").onclick = function(e) {
-    e.preventDefault();
-    window.location.href = "home.html";
-};
-
-document.addEventListener("DOMContentLoaded", function () {
-    fetchResearchPapers();
-});
-
-document.querySelector(".logo").onclick = function(e) {
-    e.preventDefault(); // Prevent any default behavior if applicable
-    window.location.href = "home.html";
-};
-
-document.querySelector(".site-name").onclick = function(e) {
-    e.preventDefault(); // Prevent any default behavior if applicable
-    window.location.href = "home.html";
-};
-

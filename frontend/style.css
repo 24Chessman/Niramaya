@@ -66,7 +66,7 @@ body {
 /* Hero Section */
 .hero {
     text-align: center;
-    margin: 120px auto 50px; /* Margin-top set to 120px */
+    margin: 140px auto 50px; /* Margin-top set to 120px */
     max-width: 700px;
     padding: 50px;
     background-image: linear-gradient(to bottom right, #1c1c1c, #2c2c2c);
@@ -110,7 +110,7 @@ body {
 .research-section {
     background: #1c1c1c;
     padding: 40px;
-    margin: 120px auto 40px;
+    margin: 50px auto 40px;
     border-radius: 12px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
     width: 90%;
@@ -137,7 +137,7 @@ body {
 
 .latest-title {
     font-weight: bold;
-    margin-right: 10px;
+    margin-right: 580px;
 }
 
 .toggle-icon {
