@@ -267,10 +267,10 @@
         }
 
         .modal-content {
-            background: linear-gradient(145deg, #2a2a2a, #1c1c1c);
+            background: #1c1c1c;
             padding: 40px;
             border-radius: 15px;
-            width: 450px; /* Fixed width to match the button's natural width */
+            width: 500px; /* Increased from 450px to match login modal's apparent width */
             max-width: 90%;
             position: relative;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.6);
@@ -833,6 +833,66 @@
             left: 50% !important;
             transform: translate(-50%, -50%) !important;
         }
+
+
+        /* Forgot password */
+        #send-otp-modal .modal-content,
+        #reset-password-modal .modal-content {
+            width: 450px;
+            min-width: 400px;
+            max-width: 90%;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #send-otp-modal .form-group,
+        #reset-password-modal .form-group {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        #send-otp-modal .form-group input,
+        #reset-password-modal .form-group input {
+            width: 100%;
+            padding: 12px;
+            background-color: #3a3a3a;
+            border: 1px solid #555555;
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 16px;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        #send-otp-modal .form-group input:focus,
+        #reset-password-modal .form-group input:focus {
+            border-color: #888888;
+            box-shadow: 0 0 8px rgba(136, 136, 136, 0.3);
+        }
+
+        #send-otp-modal .modal-btn,
+        #reset-password-modal .modal-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(90deg, #555555, #666666);
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.1s;
+            box-sizing: border-box;
+        }
+
+        #send-otp-modal .modal-btn:hover,
+        #reset-password-modal .modal-btn:hover {
+            background: linear-gradient(90deg, #666666, #777777);
+            transform: translateY(-2px);
+        }
     </style>
 </head>
 <body>
@@ -899,10 +959,15 @@
                 <div class="form-group">
                     <label for="password">Password</label>
                     <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                    <p class="modal-link">
+                        <a href="#" onclick="openForgotPasswordModal();">Forgot Password?</a>
+                    </p>
                 </div>
                 <button type="submit" class="modal-btn">Login</button>
             </form>
-            <p class="modal-link">Not a user? <a href="#" onclick="openRegisterModal(); closeLoginModal();">Register</a></p>
+            <p class="modal-link">
+                Don't have an Account? <a href="#" onclick="openRegisterModal(); closeLoginModal();">Register</a><br> 
+            </p>
         </div>
     </div>
 
@@ -1049,6 +1114,50 @@
             <div id="history-list" class="history-list">
                 <!-- History cards will be dynamically added here -->
             </div>
+        </div>
+    </div>
+
+    <!-- Forgot Password Modal -->
+    <div id="send-otp-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeSendOtpModal()">×</span>
+            <h2>Reset Password</h2>
+            <form id="send-otp-form" onsubmit="handleSendOtp(event)">
+                <div class="form-group">
+                    <label for="forgot-email">Email</label>
+                    <input type="email" id="forgot-email" name="email" placeholder="Enter your email" required>
+                </div>
+                <button type="submit" class="modal-btn">Send OTP</button>
+            </form>
+            <p class="modal-link">
+                Back to <a href="#" onclick="openLoginModal(); closeSendOtpModal();">Login</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Reset Password Modal -->
+    <div id="reset-password-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeResetPasswordModal()">×</span>
+            <h2>Reset Password</h2>
+            <form id="reset-password-form" onsubmit="handleResetPassword(event)">
+                <div class="form-group">
+                    <label for="otp">OTP</label>
+                    <input type="text" id="otp" name="otp" placeholder="Enter OTP" required>
+                </div>
+                <div class="form-group">
+                    <label for="new-password">New Password</label>
+                    <input type="password" id="new-password" name="new-password" placeholder="Enter new password" required>
+                </div>
+                <div class="form-group">
+                    <label for="confirm-password">Confirm Password</label>
+                    <input type="password" id="confirm-password" name="confirm-password" placeholder="Confirm new password" required>
+                </div>
+                <button type="submit" class="modal-btn">Reset Password</button>
+            </form>
+            <p class="modal-link">
+                Back to <a href="#" onclick="openLoginModal(); closeResetPasswordModal();">Login</a>
+            </p>
         </div>
     </div>
 
@@ -1558,6 +1667,7 @@
             const addMemberModal = document.getElementById("add-member-modal");
             const profileModal = document.getElementById("profile-modal");
             const historyModal = document.getElementById("history-modal");
+            const forgotPasswordModal = document.getElementById("forgot-password-modal");
 
             if (event.target === loginModal) {
                 closeLoginModal();
@@ -1565,11 +1675,9 @@
             if (event.target === registerModal) {
                 closeRegisterModal();
             }
-            // Prevent closing member selection modal unless a member is selected
             if (event.target === memberModal && localStorage.getItem("selectedMemberId")) {
                 closeMemberSelectionModal();
             }
-            // Prevent closing add member modal unless a member is added
             if (event.target === addMemberModal && localStorage.getItem("selectedMemberId")) {
                 closeAddMemberModal();
             }
@@ -1578,6 +1686,9 @@
             }
             if (event.target === historyModal) {
                 closeHistoryModal();
+            }
+            if (event.target === forgotPasswordModal) {
+                closeForgotPasswordModal();
             }
         };
 
@@ -2069,7 +2180,7 @@
             scrollToBottom();
         }
 
-        // Delete Chat History
+        // Delete Chat History 
         function deleteHistory(event, historyId) {
             event.stopPropagation(); // Prevent card click from triggering
             const accountId = localStorage.getItem("accountId");
@@ -2202,6 +2313,127 @@
             }
         }
 
+        // Forgot Password
+        function openForgotPasswordModal() {
+            const modal = document.getElementById("send-otp-modal");
+            modal.style.display = "flex";
+            document.getElementById("send-otp-form").reset();
+            closeLoginModal();
+        }
+
+        function closeSendOtpModal() {
+            document.getElementById("send-otp-modal").style.display = "none";
+            document.getElementById("send-otp-form").reset();
+        }
+
+        async function handleSendOtp(event) {
+            event.preventDefault();
+            console.log("handleSendOtp called");
+
+            const emailInput = document.getElementById("forgot-email");
+            if (!emailInput.value.trim()) {
+                alert("Please enter a valid email!");
+                emailInput.focus();
+                return;
+            }
+
+            try {
+                console.log("Sending OTP request for:", emailInput.value);
+                const response = await fetch("http://127.0.0.1:5000/forgotpassword", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email: emailInput.value.trim() })
+                });
+                const data = await response.json();
+                console.log("API response:", data);
+                if (data.success) {
+                    alert("OTP sent to your email!");
+                    sessionStorage.setItem("storedOtp", data.otp);
+                    sessionStorage.setItem("storedAccountId", data.account_id);
+                    closeSendOtpModal();
+                    openResetPasswordModal();
+                } else {
+                    alert(data.message || "Failed to send OTP.");
+                }
+            } catch (error) {
+                console.error("Fetch error:", error);
+                alert("Unable to connect to the server. Please check your connection or try again later.");
+            }
+        }
+
+        function openResetPasswordModal() {
+            const modal = document.getElementById("reset-password-modal");
+            modal.style.display = "flex";
+            document.getElementById("reset-password-form").reset();
+            // Ensure all inputs are enabled
+            document.getElementById("otp").disabled = false;
+            document.getElementById("new-password").disabled = false;
+            document.getElementById("confirm-password").disabled = false;
+        }
+
+        function closeResetPasswordModal() {
+            document.getElementById("reset-password-modal").style.display = "none";
+            document.getElementById("reset-password-form").reset();
+        }
+
+        async function handleResetPassword(event) {
+            event.preventDefault();
+            console.log("handleResetPassword called");
+
+            const otpInput = document.getElementById("otp");
+            const newPasswordInput = document.getElementById("new-password");
+            const confirmPasswordInput = document.getElementById("confirm-password");
+
+            const otp = otpInput.value.trim();
+            const newPassword = newPasswordInput.value.trim();
+            const confirmPassword = confirmPasswordInput.value.trim();
+
+            if (!otp || !newPassword || !confirmPassword) {
+                alert("Please fill all fields!");
+                if (!otp) otpInput.focus();
+                else if (!newPassword) newPasswordInput.focus();
+                else confirmPasswordInput.focus();
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                alert("Passwords do not match!");
+                newPasswordInput.focus();
+                return;
+            }
+
+            const storedOtp = sessionStorage.getItem("storedOtp");
+            if (otp !== storedOtp) {
+                alert("Incorrect OTP. Please try again.");
+                otpInput.focus();
+                return;
+            }
+
+            try {
+                const response = await fetch("http://127.0.0.1:5000/resetpassword", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        account_id: sessionStorage.getItem("storedAccountId"),
+                        new_password: newPassword
+                    })
+                });
+                const data = await response.json();
+                console.log("Reset password response:", data);
+                if (data.success) {
+                    alert("Password reset successfully!");
+                    sessionStorage.removeItem("storedOtp");
+                    sessionStorage.removeItem("storedAccountId");
+                    closeResetPasswordModal();
+                    openLoginModal();
+                } else {
+                    alert(data.message || "Failed to reset password. Please try again.");
+                }
+            } catch (error) {
+                console.error("Fetch error:", error);
+                alert("Unable to connect to the server. Please check your connection or try again later.");
+            }
+        }
     </script>
 </body>
 </html>
