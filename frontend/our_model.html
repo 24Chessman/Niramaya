@@ -13,9 +13,11 @@
             font-family: Georgia, serif;
         }
 
-        main {
-            padding-top: 100px;
-        }
+        /* Ensure main content starts below the fixed header */
+main {
+    padding-top: 100px;
+    margin-bottom: 40px; /* Added for spacing */
+}
 
         .container {
             max-width: 800px;
@@ -85,21 +87,71 @@
         }
 
         .footer {
-            text-align: center;
-            padding: 20px;
-            background-color: #333;
-            color: white;
-            margin-top: 40px;
-        }
+    text-align: center;
+    padding: 60px 20px 20px;
+    background: #1c1c1c;
+    position: relative;
+    width: 100%;
+    border-top: 1px solid #333;
+    margin-top: 40px; /* Increase this, e.g., to 80px */
+}
 
-        .footer a {
-            color: #e0e0e0;
-            text-decoration: none;
-        }
+.footer-content {
+    margin-bottom: 30px;
+}
 
-        .footer a:hover {
-            text-decoration: underline;
-        }
+.footer-text {
+    font-size: 18px;
+    color: #b0b0b0;
+    margin-bottom: 15px;
+}
+
+.footer-disclaimer {
+    font-size: 16px;
+    color: #888;
+    max-width: 800px;
+    margin: 0 auto 20px;
+    line-height: 1.8;
+}
+
+.footer-disclaimer a {
+    color: #e0e0e0;
+    text-decoration: none;
+}
+
+.footer-disclaimer a:hover {
+    text-decoration: underline;
+}
+
+.footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.footer-links a {
+    color: #b0b0b0;
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.3s;
+}
+
+.footer-links a:hover {
+    color: #e0e0e0;
+    text-decoration: underline;
+}
+.footer-bottom {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #333;
+    font-size: 12px;
+    color: #b0b0b0;
+}
+
+.footer-bottom p {
+    margin: 0;
+}
     </style>
 </head>
 <body>
@@ -162,9 +214,19 @@
             </div>
         </div>
     </main>
-    <div class="footer">
-        <p>Follow us on <a href="https://www.facebook.com">Facebook</a> and <a href="https://www.youtube.com">YouTube</a></p>
-        <p>2025 Niramaya. All rights reserved.</p>
-    </div>
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <p class="footer-text">© 2025 Niramaya. All rights reserved.</p>
+                <p class="footer-disclaimer">Niramaya is a health company. Our website services, content, and products are for informational purposes only. Niramaya does not provide medical advice, diagnosis, or treatment. <a href="#">See additional information</a>.</p>
+                <div class="footer-links">
+                    <a href="#">About</a>
+                    <a href="#">Careers</a>
+                    <a href="#">Advertise with us</a>
+                </div>
+            </div>
+        </div>
+        
+    </footer>
 </body>
 </html>

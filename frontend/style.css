@@ -290,6 +290,7 @@ body {
     position: relative;
     width: 100%;
     border-top: 1px solid #333;
+    font-family: Georgia, 'Times New Roman', Times, serif;
 }
 
 .footer-content {
@@ -297,13 +298,13 @@ body {
 }
 
 .footer-text {
-    font-size: 14px;
+    font-size: 18px;
     color: #b0b0b0;
     margin-bottom: 15px;
 }
 
 .footer-disclaimer {
-    font-size: 12px;
+    font-size: 16px;
     color: #888;
     max-width: 800px;
     margin: 0 auto 20px;
