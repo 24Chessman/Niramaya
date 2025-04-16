@@ -7,7 +7,7 @@
 body {
     background-color: #121212;
     color: #e0e0e0;
-    font-family: Arial, sans-serif;
+    font-family: Georgia, serif;
     line-height: 1.6;
     overflow-x: hidden;
 }
@@ -66,7 +66,7 @@ body {
 /* Hero Section */
 .hero {
     text-align: center;
-    margin: 140px auto 50px; /* Margin-top set to 120px */
+    margin: 140px auto 50px;
     max-width: 700px;
     padding: 50px;
     background-image: linear-gradient(to bottom right, #1c1c1c, #2c2c2c);
@@ -125,10 +125,12 @@ body {
     cursor: pointer;
     user-select: none;
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
     padding: 10px;
     transition: background-color 0.3s;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 .research-toggle:hover {
@@ -137,12 +139,14 @@ body {
 
 .latest-title {
     font-weight: bold;
-    margin-right: 580px;
+    margin-right: 20px;
+    flex-shrink: 0;
 }
 
 .toggle-icon {
     font-size: 24px;
     transition: transform 0.3s;
+    margin-right: 10px;
 }
 
 .research-content {
@@ -265,26 +269,84 @@ body {
         grid-template-columns: 1fr;
     }
     .hero {
-        margin: 80px auto 30px; /* Adjusted for smaller screens */
+        margin: 80px auto 30px;
+    }
+    .research-toggle {
+        font-size: 24px;
+    }
+    .latest-title {
+        margin-right: 10px;
+    }
+    .toggle-icon {
+        font-size: 20px;
     }
 }
 
 /* Footer */
 .footer {
     text-align: center;
-    padding: 40px 20px;
+    padding: 60px 20px 20px;
     background: #1c1c1c;
     position: relative;
     width: 100%;
+    border-top: 1px solid #333;
 }
 
-.footer a {
+.footer-content {
+    margin-bottom: 30px;
+}
+
+.footer-text {
+    font-size: 14px;
+    color: #b0b0b0;
+    margin-bottom: 15px;
+}
+
+.footer-disclaimer {
+    font-size: 12px;
+    color: #888;
+    max-width: 800px;
+    margin: 0 auto 20px;
+    line-height: 1.8;
+}
+
+.footer-disclaimer a {
     color: #e0e0e0;
     text-decoration: none;
 }
 
-.footer a:hover {
+.footer-disclaimer a:hover {
     text-decoration: underline;
+}
+
+.footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.footer-links a {
+    color: #b0b0b0;
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.3s;
+}
+
+.footer-links a:hover {
+    color: #e0e0e0;
+    text-decoration: underline;
+}
+.footer-bottom {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #333;
+    font-size: 12px;
+    color: #b0b0b0;
+}
+
+.footer-bottom p {
+    margin: 0;
 }
 
 /* Modal Styles */
