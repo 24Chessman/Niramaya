@@ -27,7 +27,7 @@
             height: 80px;
             width: auto;
             margin-right: 15px;
-            margin-left: 40px;
+            margin-left: 48px;
             margin-bottom: 5px;
         }
 
@@ -61,7 +61,7 @@
         body {
             background-color: #1c1c1c;
             color: #ffffff;
-            font-family: Arial, sans-serif;
+            font-family: Arial, Helvetica, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -1208,9 +1208,9 @@
                     .then(data => {
                         if (data.success && data.members && data.members.length > 0) {
                             openMemberSelectionModal(data.members);
-                            document.getElementById("input-container").style.display = "none";
-                            document.getElementById("chat-container").style.display = "none";
-                            document.getElementById("chat-footer").style.display = "none";
+                            // document.getElementById("input-container").style.display = "none";
+                            // document.getElementById("chat-container").style.display = "none";
+                            // document.getElementById("chat-footer").style.display = "none";
                         } else {
                             openAddMemberModal();
                         }
@@ -1563,9 +1563,9 @@
                     if (data.members && data.members.length > 0) {
                         openMemberSelectionModal(data.members);
                         // Prevent other functionality until a member is selected
-                        document.getElementById("input-container").style.display = "none";
-                        document.getElementById("chat-container").style.display = "none";
-                        document.getElementById("chat-footer").style.display = "none";
+                        // document.getElementById("input-container").style.display = "none";
+                        // document.getElementById("chat-container").style.display = "none";
+                        // document.getElementById("chat-footer").style.display = "none";
                     } else {
                         alert("No members found for this account! Please add a member.");
                         openAddMemberModal();
@@ -1625,9 +1625,9 @@
                     // Force member addition
                     openAddMemberModal();
                     // Prevent other functionality until a member is added
-                    document.getElementById("input-container").style.display = "none";
-                    document.getElementById("chat-container").style.display = "none";
-                    document.getElementById("chat-footer").style.display = "none";
+                    // document.getElementById("input-container").style.display = "none";
+                    // document.getElementById("chat-container").style.display = "none";
+                    // document.getElementById("chat-footer").style.display = "none";
                     closeRegisterModal();
                     updateGreeting();
                 } else {
@@ -1777,9 +1777,9 @@
                                 if (localStorage.getItem("selectedMemberId") === memberId) {
                                     localStorage.removeItem("selectedMemberId");
                                     localStorage.removeItem("selectedMemberName");
-                                    document.getElementById("input-container").style.display = "none";
-                                    document.getElementById("chat-container").style.display = "none";
-                                    document.getElementById("chat-footer").style.display = "none";
+                                    // document.getElementById("input-container").style.display = "none";
+                                    // document.getElementById("chat-container").style.display = "none";
+                                    // document.getElementById("chat-footer").style.display = "none";
                                     isFirstMessage = true;
                                     updateGreeting();
                                 }
@@ -1987,9 +1987,9 @@
             if (addMemberModal) {
                 addMemberModal.style.display = "flex";
                 // Hide other UI elements
-                document.getElementById("input-container").style.display = "none";
-                document.getElementById("chat-container").style.display = "none";
-                document.getElementById("chat-footer").style.display = "none";
+                // document.getElementById("input-container").style.display = "none";
+                // document.getElementById("chat-container").style.display = "none";
+                // document.getElementById("chat-footer").style.display = "none";
             } else {
                 console.error("Add Member Modal element not found!");
             }

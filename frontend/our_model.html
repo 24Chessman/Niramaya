@@ -10,6 +10,7 @@
 body {
     background-color: #121212;
     color: #e0e0e0;
+    font-family: Arial, Helvetica, sans-serif;
 }
 
         /* Ensure main content starts below the fixed header */
@@ -53,7 +54,6 @@ main {
     height: 80px;
     width: auto;
     margin-right: 15px;
-    margin-left: 30px;
     margin-bottom: 5px;
 }
 
@@ -158,6 +158,10 @@ main {
 .footer-bottom p {
     margin: 0;
 }
+
+#career, #advertise, #additional{
+    cursor: pointer;
+}
     </style>
 </head>
 <body>
@@ -224,11 +228,11 @@ main {
         <div class="container">
             <div class="footer-content">
                 <p class="footer-text">© 2025 Niramaya. All rights reserved.</p>
-                <p class="footer-disclaimer">Niramaya is a health AI. Our website services, content, and products are for informational purposes only. Niramaya does not provide medical advice, diagnosis, or treatment. <a href="#">See additional information</a>.</p>
+                <p class="footer-disclaimer">Niramaya is a health AI. Our website services, content, and products are for informational purposes only. Niramaya does not provide medical advice, diagnosis, or treatment. <a id="additional">See additional information</a>.</p>
                 <div class="footer-links">
-                    <a href="#">About</a>
-                    <a href="#">Careers</a>
-                    <a href="#">Advertise with us</a>
+                    <a href="about.html">About</a>
+                    <a id="career">Careers</a>
+                    <a id="advertise">Advertise with us</a>
                 </div>
             </div>
         </div>
@@ -245,6 +249,7 @@ main {
             e.preventDefault(); // Prevent any default behavior if applicable
             window.location.href = "home.html";
         };
+        
     </script>
 </body>
 </html>
