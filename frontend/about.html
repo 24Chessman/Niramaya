@@ -7,10 +7,9 @@
     <link rel="icon" type="image/png" href="N-16.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        body {
+body {
     background-color: #121212;
     color: #e0e0e0;
-    font-family: Georgia, serif;
     margin: 0; /* Remove default margin */
     min-height: 100vh; /* Ensure body takes full viewport height */
     display: flex;
@@ -57,12 +56,19 @@ main {
     height: 80px;
     width: auto;
     margin-right: 15px;
+    margin-left: 40px;
+    margin-bottom: 5px;
+}
+
+.logo {
+    cursor: pointer;
 }
 
 .site-name {
     font-size: 24px;
     color: #e0e0e0;
     font-weight: bold;
+    cursor: pointer;
 }
 
 .nav {
@@ -187,7 +193,7 @@ main {
         <div class="container">
             <div class="footer-content">
                 <p class="footer-text">© 2025 Niramaya. All rights reserved.</p>
-                <p class="footer-disclaimer">Niramaya is a health company. Our website services, content, and products are for informational purposes only. Niramaya does not provide medical advice, diagnosis, or treatment. <a href="#">See additional information</a>.</p>
+                <p class="footer-disclaimer">Niramaya is a health AI. Our website services, content, and products are for informational purposes only. Niramaya does not provide medical advice, diagnosis, or treatment. <a href="#">See additional information</a>.</p>
                 <div class="footer-links">
                     <a href="#">About</a>
                     <a href="#">Careers</a>
@@ -197,5 +203,17 @@ main {
         </div>
         
     </footer>
+
+    <script>
+        document.querySelector(".logo").onclick = function(e) {
+            e.preventDefault(); // Prevent any default behavior if applicable
+            window.location.href = "home.html";
+        };
+
+        document.querySelector(".site-name").onclick = function(e) {
+            e.preventDefault(); // Prevent any default behavior if applicable
+            window.location.href = "home.html";
+        };
+    </script>
 </body>
 </html>
