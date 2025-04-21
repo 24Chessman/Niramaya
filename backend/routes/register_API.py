@@ -40,7 +40,7 @@ def register_user():
         )
         account_id = cursor.fetchone()[0]
         conn.commit()
-        return jsonify({"success": True, "account_id": account_id, "message": "Registration successful"}), 201
+        return jsonify({"success": True, "account_id": account_id, "message": "Registration successful"}), 200
 
     except psycopg2.IntegrityError:
         return jsonify({"success": False, "message": "Email already exists"}), 400

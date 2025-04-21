@@ -1365,7 +1365,7 @@
                     diseasePara.innerHTML = `<strong>Predicted Disease:</strong> ${data.predicted_disease || "No disease predicted."}`;
                     responseDiv.appendChild(diseasePara);
                     let descriptionPara = document.createElement("p");
-                    descriptionPara.innerHTML = `<strong>Description:</strong> ${data.Description || "No description available."}`;
+                    descriptionPara.innerHTML = `<strong>Description:</strong> ${data.description || "No description available."}`;
                     responseDiv.appendChild(descriptionPara);
 
                     let disclaimerPara = document.createElement("p");
@@ -1420,7 +1420,7 @@
                         let botResponse;
                         if (model === "LRv1") {
                             botResponse = JSON.stringify({
-                                Description: data.Description || "No description available.",
+                                Description: data.description || "No description available.",
                                 predicted_disease: data.predicted_disease || "No disease predicted."
                             });
                         } else if (model === "LRv2") {
