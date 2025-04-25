@@ -14,25 +14,24 @@ async function fetchResearchPapers() {
 
     // Array of 20 unique, verified health-related images from Unsplash (re-verified)
     const imagePool = [
-        "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?ixlib=rb-4.0.3&auto=format&fit=crop&w=320", // Stethoscope
-        "https://images.unsplash.com/photo-1550831107-1553da8c8464?ixlib=rb-4.0.3&auto=format&fit=crop&w=320", // Doctor
-        "https://images.unsplash.com/photo-1498837167922-ddd27525d352?ixlib=rb-4.0.3&auto=format&fit=crop&w=320", // Healthy food
-        "https://images.unsplash.com/photo-1557682224-5b8590cd9ec5?ixlib=rb-4.0.3&auto=format&fit=crop&w=320", // Brain
-        "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=320", // Health tech
-        "https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?ixlib=rb-4.0.3&auto=format&fit=crop&w=320", // Heart health
-        "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=320", // Fitness tracker
-        "https://images.unsplash.com/photo-1543353071-873f17a7a088?ixlib=rb-4.0.3&auto=format&fit=crop&w=320", // Meditation
-        "https://images.unsplash.com/photo-1579684385127-1ef15d508118?ixlib=rb-4.0.3&auto=format&fit=crop&w=320", // Patient care
-        "https://images.unsplash.com/photo-1506126613408-eca07ce68773?ixlib=rb-4.0.3&auto=format&fit=crop&w=320", // Healthy lifestyle
+        "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?ixlib=rb-4.0.3&auto=format&fit=crop&w=320",
+        "https://images.unsplash.com/photo-1550831107-1553da8c8464?ixlib=rb-4.0.3&auto=format&fit=crop&w=320",
+        "https://images.unsplash.com/photo-1498837167922-ddd27525d352?ixlib=rb-4.0.3&auto=format&fit=crop&w=320",
+        "https://images.unsplash.com/photo-1557682224-5b8590cd9ec5?ixlib=rb-4.0.3&auto=format&fit=crop&w=320",
+        "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=320",
+        "https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?ixlib=rb-4.0.3&auto=format&fit=crop&w=320",
+        "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=320",
+        "https://images.unsplash.com/photo-1543353071-873f17a7a088?ixlib=rb-4.0.3&auto=format&fit=crop&w=320",
+        "https://images.unsplash.com/photo-1579684385127-1ef15d508118?ixlib=rb-4.0.3&auto=format&fit=crop&w=320",
+        "https://images.unsplash.com/photo-1506126613408-eca07ce68773?ixlib=rb-4.0.3&auto=format&fit=crop&w=320",
     ];
 
     // Fallback image pool (re-verified)
     const fallbackImages = [
-        "https://images.unsplash.com/photo-1617791160536-585948b95a38?ixlib=rb-4.0.3&auto=format&fit=crop&w=320"  // Medical research
+        "https://images.unsplash.com/photo-1617791160536-585948b95a38?ixlib=rb-4.0.3&auto=format&fit=crop&w=320"
     ];
 
     try {
-        // Fetch up to 20 papers
         const response = await fetch("https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=health%20AI%20wellness&resultType=lite&format=json&pageSize=20");
         const data = await response.json();
         let papers = data.resultList.result;
@@ -42,13 +41,8 @@ async function fetchResearchPapers() {
             return;
         }
 
-        // Shuffle papers and take up to 20
         papers = shuffleArray(papers).slice(0, 20);
-
-        // Shuffle images
-        const shuffledImages = shuffleArray([...imagePool]).slice(0, Math.min(6, papers.length)); // Ensure at least 6 images
-
-        // Select 6 random papers
+        const shuffledImages = shuffleArray([...imagePool]).slice(0, Math.min(6, papers.length));
         const selectedPapers = papers.slice(0, 6);
 
         container.innerHTML = "";
@@ -93,7 +87,6 @@ function toggleResearch() {
     const isCollapsed = content.style.maxHeight === '0px' || !content.style.maxHeight;
 
     if (isCollapsed) {
-        // Ensure content is fully loaded before expanding
         if (content.innerHTML.includes('Loading')) {
             fetchResearchPapers().then(() => {
                 content.style.maxHeight = content.scrollHeight + 'px';
@@ -109,12 +102,11 @@ function toggleResearch() {
     }
 }
 
-// Load papers on page load and set initial state
+// Load papers and handle theme toggle on page load
 document.addEventListener("DOMContentLoaded", function () {
-    fetchResearchPapers(); // Load papers on page load
-    document.getElementById('research-content').style.maxHeight = '0'; // Ensure section is closed initially
+    fetchResearchPapers();
+    document.getElementById('research-content').style.maxHeight = '0';
 
-    // Logo and site-name click handlers
     document.querySelector(".logo").onclick = function(e) {
         e.preventDefault();
         window.location.href = "home.html";
@@ -124,4 +116,35 @@ document.addEventListener("DOMContentLoaded", function () {
         e.preventDefault();
         window.location.href = "home.html";
     };
+
+    // Theme toggle functionality
+    const htmlElement = document.documentElement;
+    const themeToggleButton = document.getElementById('theme-toggle');
+    let currentTheme = localStorage.getItem('theme') || 'dark';
+
+    if (currentTheme === 'dark') {
+        themeToggleButton.innerHTML = '<i class="fas fa-sun"></i>';
+    } else {
+        themeToggleButton.innerHTML = '<i class="fas fa-moon"></i>';
+    }
+
+    themeToggleButton.addEventListener('click', () => {
+        const logoImg = document.getElementById('logo-img');
+        if (currentTheme === 'dark') {
+            htmlElement.classList.remove('dark');
+            htmlElement.classList.add('light');
+            localStorage.setItem('theme', 'light');
+            currentTheme = 'light';
+            themeToggleButton.innerHTML = '<i class="fas fa-moon"></i>';
+        } else {
+            htmlElement.classList.remove('light');
+            htmlElement.classList.add('dark');
+            localStorage.setItem('theme', 'dark');
+            currentTheme = 'dark';
+            themeToggleButton.innerHTML = '<i class="fas fa-sun"></i>';
+        }
+        if (logoImg) {
+            logoImg.src = currentTheme === 'dark' ? 'N-dark.png' : 'N-light.png';
+        }
+    });
 });
