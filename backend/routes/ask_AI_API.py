@@ -31,7 +31,7 @@ def generate_medical_response(prompt, max_length=1000):
     return full_response
 
 # Configure Gemini API
-GEMINI_API_KEY = "AIzaSyCxcCXwbFRdEz6f92mXlVd1dBw7fqCQWew"  # Replace with your actual API key
+GEMINI_API_KEY = "****************"  # Replace with your actual API key
 genai.configure(api_key=GEMINI_API_KEY)
 
 def generate_gemini_response(prompt):
