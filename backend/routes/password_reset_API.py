@@ -22,8 +22,8 @@ db_config = {
 }
 
 # Gmail SMTP Configuration
-GMAIL_USER = "facrninja@gmail.com"  
-GMAIL_PASS = "esavshriqkcudtig"     
+GMAIL_USER = "**************"  
+GMAIL_PASS = "**************"     
 
 # Database connection helper
 def connect_db():
