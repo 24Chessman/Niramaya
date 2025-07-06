@@ -34,7 +34,7 @@ This project was developed as part of an academic initiative to apply machine le
 
 > ⚠️ You need Python installed on your system.
 
-
+```bash
 # 1. Clone the repository
 git clone https://github.com/24Chessman/Niramaya.git
 cd Niramaya
