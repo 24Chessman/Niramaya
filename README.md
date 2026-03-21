@@ -9,7 +9,7 @@ This project was developed as part of an academic initiative to apply machine le
 
 ## 🚀 Features
 
-- 🔍 Enter symptoms and get probable diseases predicted by an ML model (Naïve Bayes)
+- 🔍 Enter symptoms and get probable diseases predicted by an ML model
 - 👥 Add multiple family members under a single login
 - 🧠 Trained on the **AIIMS Clinical Symptom-Disease Dataset**
 - 🖥️ Simple UI built with Flask, HTML, CSS, JacaScript
